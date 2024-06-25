@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.item.ItemDao">
+ 	
+ 	
+	<resultMap id="itemSelectMap" type="item">
+      <result property="itemNo"          				column="item_no"          					jdbcType="INTEGER" />
+      <result property="itemCategory"          			column="item_category"          			jdbcType="VARCHAR" />
+      <result property="itemName"   					column="item_name"    						jdbcType="VARCHAR" />
+      <result property="itemEffect"   					column="item_effect"       					jdbcType="VARCHAR" /> 
+      <result property="itemImg" 						column="item_img" 							jdbcType="VARCHAR" />
+      <result property="itemPrice"             			column="item_price"       					jdbcType="INTEGER" />
+      <result property="itemRegdate"    				column="item_regdate"       				jdbcType="DATE" />
+      <result property="itemFlag"    				    column="item_flag"       				    jdbcType="VARCHAR" />
+   </resultMap>
+	
+	<!-- SQL : INSERT 판매 아이템 등록--> 
+	<insert id="addItem" parameterType="item" useGeneratedKeys="true" keyProperty="itemNo">      
+	 	INSERT
+		INTO item (item_category , item_name, item_effect , item_img, item_price, item_regdate, item_flag ) 
+		VALUES(	#{itemCategory:VARCHAR}, #{itemName:VARCHAR}, #{itemEffect:VARCHAR}, #{itemImg:VARCHAR}, #{itemPrice:INTEGER}, curdate(),"N")
+	</insert>
+	
+    <!-- SQL : SELECT 아이템 상세정보조회-->
+	<select id="getItem" parameterType="int" resultMap="itemSelectMap">
+		SELECT
+		*
+		FROM item
+		WHERE item_no = #{value}
+	</select>
+	
+	<!-- SQL : SELECT 아이템 목록조회-->
+	<select id="getItemList" parameterType="search" resultMap="itemSelectMap">
+		SELECT
+		*
+		FROM item
+		WHERE item_flag = 'N'
+		<if test='searchCondition != null'>
+        	AND item_category = #{searchCondition}
+        	<if test='searchKeyword != null and searchKeyword != ""'>
+        	AND item_name LIKE CONCAT('%', #{searchKeyword}, '%')
+        	</if>
+     	</if>
+	</select>
+	
+	<!-- SQL : UPDATE 판매 아이템 정보 수정-->
+	<update id="updateItem" parameterType="item">
+   		UPDATE item
+    <set>
+        <if test="itemName != null"> item_name = #{itemName}, </if>
+        <if test="itemEffect != null"> item_effect = #{itemEffect}, </if>
+        <if test="itemImg != null"> item_img = #{itemImg}, </if>
+        <if test="itemPrice != null"> item_price = #{itemPrice}, </if>
+    </set>
+    <where>
+        item_no = #{itemNo}
+    </where>
+	</update>
+	
+	<!-- SQL : DELETE 판매 아이템 삭제-->
+	 <update id="deleteItem" parameterType="INT">
+	    UPDATE item
+	    SET item_flag = 'Y'
+	    WHERE item_no = #{itemNo}
+	 </update>
+		 
+	 
+	<!--UPDATE item
+	 	<set>
+	 	item_flag = 'Y'
+	 	</set>
+	 	<where>
+		WHERE item_no = #{value}
+		</where>
+	 </update>
+	 -->
+		
+	<!-- SQL : SELECT 아이템 검색 결과-->
+	  	<select id="getItemSearch"  parameterType="search"  resultMap="itemSelectMap">
+	  	    SELECT 
+				*
+			FROM item
+			<if test="searchCondition != null">
+        		<where>
+            		<if test="searchCondition == 0 and searchKeyword !=''">
+               			item_name LIKE CONCAT('%', #{searchKeyword}, '%')
+            		</if>
+           			 <if test="searchCondition == 1 and searchKeyword !=''">
+               			item_category LIKE CONCAT('%', #{searchKeyword}, '%')
+            		</if>
+        		</where>
+    		</if>
+		</select>
+	
+	
+	
+	
+	<!-- 
+	<select  id="getItemSearch"  parameterType="search"	resultMap="itemSelectMap">
+	  	SELECT *
+	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq
+	  					FROM		(	SELECT *
+											FROM item
+											<if test="searchCondition != null">
+												<where>
+													<if test="searchCondition == 0 and searchKeyword !='' ">
+										 				item_name LIKE '%'||#{searchKeyword}||'%'
+													</if>
+													<if test="searchCondition == 1 and searchKeyword !='' ">
+										 				item_category LIKE '%'||#{searchKeyword}||'%'
+													</if>
+												</where>
+											</if>
+											ORDER BY item_category ) inner_table
+						WHERE ROWNUM &lt;= #{endRowNum} )
+		WHERE row_seq BETWEEN #{startRowNum} AND #{endRowNum} 
+	 </select>
+	
+	
+	 -->
+	 
+	 
+	 <!--  
+	 <select  id="getTotalCount"  parameterType="search"	 resultType="int">
+	  	SELECT COUNT(*)
+	  	FROM(	SELECT item_no , item_category , item_name, item_effect , item_img, item_price
+						FROM item
+						<if test="searchCondition != null">
+							<where>
+								<if test="searchCondition == 0 and searchKeyword !='' ">
+					 			item_name LIKE '%'||#{searchKeyword}||'%'
+								</if>
+								<if test="searchCondition == 1 and searchKeyword !='' ">
+						 		item_category LIKE '%'||#{searchKeyword}||'%'
+								</if>
+							</where>
+						</if> ) countTable						
+	 </select>	
+	-->	
+		
+		
+</mapper>

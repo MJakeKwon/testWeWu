@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.group.GroupAcleDao">
+	<resultMap id="groupAcleSelectMap" type="groupAcle">
+		<result property="boardNo"     	column="board_no"  	jdbcType="INTEGER"/>
+		<result property="typeNo"     	column="type_no"    jdbcType="INTEGER"/>
+		<result property="memberNo"   	column="member_no"  jdbcType="INTEGER"/>
+		<result property="wrteName"   	column="nickname"   jdbcType="VARCHAR"/>
+		<result property="acleName"  	column="title"  	jdbcType="VARCHAR"/>
+		<result property="acleContents" column="contents"   jdbcType="VARCHAR"/>
+		<result property="wrteDate"   	column="reg_date"   jdbcType="DATE"/>
+	</resultMap>
+  	
+	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addGroupAcle" parameterType="groupAcle" useGeneratedKeys="true" keyProperty="boardNo" keyColumn="board_no">
+  		INSERT
+  		INTO board
+  		(
+  			type_no, 
+  			member_no, 
+  			nickname, 
+  			title,
+  			contents, 
+  			reg_date
+  		)
+  		VALUES
+  		(
+  			#{typeNo},
+  			#{memberNo},
+  			#{wrteName},
+  			#{acleName},
+  			#{acleContents},
+  			now()
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupAcle" parameterType="INT" resultMap="groupAcleSelectMap">
+  		SELECT
+  			board_no,
+  			type_no, 
+  			member_no, 
+  			nickname, 
+  			title,
+  			contents, 
+  			reg_date
+  		FROM board
+  		<where>
+  			board_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupAcleList" parameterType="MAP" resultMap="groupAcleSelectMap">
+  		SELECT
+  			board_no,
+  			type_no, 
+  			member_no, 
+  			nickname, 
+  			title,
+  			contents, 
+  			reg_date
+  		FROM board
+  		<where>
+  			type_no = #{typeNo}
+  			<if test="search.searchCondition != null and search.searchCondition != ''">
+  				and member_no = #{search.searchCondition}
+  			</if>
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element --> 
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupAcleCnt" parameterType="MAP" resultType="INT">
+  		SELECT
+  			count(*)
+  		FROM board
+  		<where>
+  			type_no = #{typeNo}
+  			<if test="search.searchCondition != null and search.searchCondition != ''">
+  				and member_no = #{search.searchCondition}
+  			</if>
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element --> 
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+  	<update id="updateGroupAcle" parameterType="groupAcle" >
+  	
+  		UPDATE board
+  		<set>
+		    <if test="typeNo != null and typeNo != ''">
+		        type_no = #{typeNo},
+		    </if>
+		    <if test="memberNo != null and memberNo != ''">
+		        member_no = #{memberNo},
+		    </if>
+		    <if test="wrteName != null and wrteName != ''">
+		        nickname = #{wrteName},
+		    </if>
+		    <if test="acleName != null and acleName != ''">
+		        title = #{acleName},
+		    </if>
+		    <if test="acleContents != null and acleContents != ''">
+		        contents = #{acleContents},
+		    </if>
+		    <if test="wrteDate != null and wrteDate != ''">
+		        reg_date = #{wrteDate},
+		    </if>
+		    board_no = #{boardNo}
+		</set>
+		<where>
+			board_no = #{boardNo}
+		</where>
+  	</update>
+	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->
+	
+	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<delete id="deleteGroupAcle" parameterType="INT" >
+  		delete
+  		FROM board
+  		<where>
+  			board_no = #{value}
+  		</where>
+  	</delete>
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+	
+</mapper>

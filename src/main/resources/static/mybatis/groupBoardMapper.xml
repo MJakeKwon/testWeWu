@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.group.GroupBoardDao">
+	<resultMap id="groupBoardSelectMap" type="groupBoard">
+		<result property="typeNo"     column="type_no"  	 jdbcType="INTEGER"/>
+		<result property="groupNo"     column="group_no"     jdbcType="INTEGER"/>
+		<result property="boardType"   column="board_type"   jdbcType="VARCHAR"/>
+		<result property="boardName"   column="board_name"   jdbcType="VARCHAR"/>
+		<result property="boardIntro"  column="board_intro"  jdbcType="VARCHAR"/>
+		<result property="addDate"     column="add_Date"     jdbcType="DATE"/>
+		<result property="boardRole"   column="board_role"   jdbcType="VARCHAR"/>
+	</resultMap>
+  	
+	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addGroupBoard" parameterType="groupBoard" useGeneratedKeys="true" keyProperty="typeNo" keyColumn="type_no">
+  		INSERT
+  		INTO board_type
+  		(
+  			group_no, 
+  			board_type, 
+  			board_name, 
+  			board_intro,
+  			add_Date, 
+  			board_role
+  		)
+  		VALUES
+  		(
+  			#{groupNo},
+  			#{boardType},
+  			#{boardName},
+  			#{boardIntro},
+  			now(),
+  			#{boardRole}
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupBoard" parameterType="INT" resultMap="groupBoardSelectMap">
+  		SELECT
+  			*
+  		FROM board_type
+  		<where>
+  			type_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupBoardList" 
+  			  parameterType="INT" 
+  			  resultMap="groupBoardSelectMap">
+		SELECT 
+			*
+		FROM board_type
+		<where>
+			group_no = #{value}
+		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+  	<update id="updateGroupBoard" parameterType="groupBoard" >
+  	
+  		UPDATE board_type
+  		<set>
+		    <if test="boardType != null and boardType != ''">
+		        board_type = #{boardType},
+		    </if>
+		    <if test="boardName != null and boardName != ''">
+		        board_name = #{boardName},
+		    </if>
+		    <if test="boardIntro != null and boardIntro != ''">
+		        board_intro = #{boardIntro},
+		    </if>
+		    <if test="addDate != null and addDate != ''">
+		        add_date = #{addDate},
+		    </if>
+		    <if test="boardRole != null and boardRole != ''">
+		        board_role = #{boardRole},
+		    </if>
+		    type_no = #{typeNo}
+		</set>
+		<where>
+			type_no = #{typeNo}
+		</where>
+  	</update>
+	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->
+  	
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<delete id="deleteGroupBoard" parameterType="INT" >
+  		delete
+  		FROM board_Type
+  		<where>
+  			type_no = #{value}
+  		</where>
+  	</delete>
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+  	
+</mapper>

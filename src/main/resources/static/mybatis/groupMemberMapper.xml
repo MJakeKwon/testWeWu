@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.group.GroupMemberDao">
+	
+	<resultMap id="groupMemberSelectMap" type="groupMember">
+		<result property="memberNo" 	   column="member_no"    	jdbcType="INTEGER"/>
+		<result property="groupNo" 		   column="group_no" 		jdbcType="INTEGER"/>
+		<result property="memberNickName"  column="member_nickname" jdbcType="VARCHAR"/>
+		<result property="scrabFlag"       column="scrab_flag" 		jdbcType="VARCHAR"/>
+		<result property="joinFlag"        column="join_flag"  		jdbcType="VARCHAR"/>
+		<result property="joinDate"  	   column="join_date"  		jdbcType="DATE"/>
+		<result property="applDate"  	   column="appl_date"  		jdbcType="DATE"/>
+		<result property="rsltDate"  	   column="rslt_date"  		jdbcType="DATE"/>
+		<result property="frstQuest" 	   column="frst_quest" 		jdbcType="VARCHAR"/>
+		<result property="scndQuest"  	   column="scnd_quest"  	jdbcType="VARCHAR"/>
+		<result property="thrdQuest"   	   column="thrd_quest"   	jdbcType="VARCHAR"/>
+		<result property="frstRepl"  	   column="frst_repl"  		jdbcType="VARCHAR"/>
+		<result property="scndRepl"   	   column="scnd_repl"   	jdbcType="VARCHAR"/>
+		<result property="thrdRepl"   	   column="thrd_repl"   	jdbcType="VARCHAR"/>
+	</resultMap>
+  	
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addMemberGroup" parameterType="groupMember" useGeneratedKeys="true" keyProperty="memberNo" keyColumn="member_no">
+  		INSERT
+  		INTO group_member
+  		(
+  			group_no, 
+  			member_nickname, 
+  			scrab_flag, 
+  			join_flag,
+  			join_date, 
+  			appl_date, 
+  			rslt_date, 
+  			frst_quest, 
+  			scnd_quest, 
+  			thrd_quest, 
+  			frst_repl,
+  			scnd_repl, 
+  			thrd_repl
+  		)
+  		VALUES
+  		(
+  			#{groupNo},
+  			#{memberNickName},
+  			"N",
+  			"E",
+  			NULL,
+  			NOW(),
+  			NOW(),
+  			#{frstQuest},
+  			#{scndQuest},
+  			#{thrdQuest},
+  			#{frstRepl},
+  			#{scndRepl},
+  			#{thrdRepl}
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getMemberGroupForNick" parameterType="map" resultMap="groupMemberSelectMap">
+  		SELECT
+  			*
+  		FROM group_member
+  		<where>
+  			member_nickname = #{memberNickNmae}
+  			AND
+  			group_no = #{groupNo}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getMemberGroup" parameterType="int" resultMap="groupMemberSelectMap">
+  		SELECT
+  			*
+  		FROM group_member
+  		<where>
+  			member_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getMemberGroupList" parameterType="map" resultMap="groupMemberSelectMap">
+		SELECT 
+			*
+		FROM group_member
+		<if test='search.searchCondition != null and search.searchCondition == "user"'>
+			<where>
+				member_nickname = #{search.searchKeyword}
+			</where>
+		</if>
+		<if test='search.searchCondition != null and search.searchCondition == "group"'>
+			<where>
+				group_no = #{search.searchKeyword}
+				<if test='joinFlag != null and joinFlag != ""'>
+					AND join_flag = #{joinFlag}
+				</if>
+			</where>
+		</if>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getScrab" parameterType="int" resultType="STRING">
+  		SELECT
+  			scrab_flag
+  		FROM group_member
+  		<where>
+  			member_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+  	<update id="updateMemberGroup" parameterType="groupMember" >
+  		UPDATE group_member
+  		<set>
+  			<if test="memberNickName != null and memberNickName != ''">
+		        member_nickname = #{memberNickName},
+		    </if>
+		    <if test="scrabFlag != null and scrabFlag != ''">
+		        scrab_flag = #{scrabFlag},
+		    </if>
+		    <if test="joinFlag != null and joinFlag != ''">
+		        join_flag = #{joinFlag},
+		    </if>
+		    <if test="joinDate != null and joinDate != ''">
+		        join_date = #{joinDate},
+		    </if>
+		    <if test="rsltDate != null and rsltDate != ''">
+		        rslt_date = #{rsltDate},
+		    </if>
+		    <if test="applDate != null and applDate != ''">
+		        appl_date = #{applDate},
+		    </if>
+		    <if test="frstQuest != null and frstQuest != ''">
+		        frst_quest = #{frstQuest},
+		    </if>
+		    <if test="scndQuest != null and scndQuest != ''">
+		        scnd_quest = #{scndQuest},
+		    </if>
+		    <if test="thrdQuest != null and thrdQuest != ''">
+		        thrd_quest = #{thrdQuest},
+		    </if>
+		    <if test="frstRepl != null and frstRepl != ''">
+		        frst_repl = #{frstRepl},
+		    </if>
+		    <if test="scndRepl != null and scndRepl != ''">
+		        scnd_repl = #{scndRepl},
+		    </if>
+		    <if test="thrdRepl != null and thrdRepl != ''">
+		        thrd_repl = #{thrdRepl},
+		    </if>
+		    member_no = #{memberNo}
+		</set>
+		<where>
+			member_no = #{memberNo}
+		</where>
+  	</update>
+	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+	
+	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<delete id="deleteMemberGroup" parameterType="int" >
+  		delete
+  		FROM group_member
+  		<where>
+  			member_no = #{value}
+  		</where>
+  	</delete>
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+	
+</mapper>

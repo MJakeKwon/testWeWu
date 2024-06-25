@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+
+	<resultMap id="questSelectMap" type="quest">
+		<result property="questNo" 			column="quest_no" 			jdbcType="INTEGER"/>
+		<result property="questContents"	column="quest_contents" 	jdbcType="VARCHAR" />
+		<result property="questTarget" 		column="quest_target" 		jdbcType="VARCHAR" />
+		<result property="questTargetCnt" 	column="quest_target_cnt" 	jdbcType="VARCHAR" />
+		<result property="regDate"			column="reg_date"			jdbcType="DATE"	/>
+		<result property="questReward" 		column="quest_reward" 		jdbcType="INTEGER" />
+		<result property="nickName" 		column="nickName" 			jdbcType="VARCHAR" />
+		<result property="questState"		column="quest_state"		jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- ADD QUEST -->
+	<insert id="addQuest" parameterType ="quest">
+	INSERT INTO quest (quest_contents, quest_target, quest_target_cnt, quest_reward, reg_date, quest_state,nickName)
+        VALUES ( #{questContents}, #{questTarget}, #{questTargetCnt}, #{questReward}, now(),'Y',#{nickName})
+    </insert>
+	
+
+	<!-- UPDATE QUTES -->
+	<update	id="updateQuest" parameterType ="quest" >
+	   	UPDATE quest
+	   	<set>
+	   		quest_contents = #{questContents},
+			quest_target = #{questTarget},
+			quest_target_cnt = #{questTargetCnt},
+			quest_reward = #{questReward}
+	   	</set>
+	   	WHERE quest_no = #{questNo}
+	 </update>
+	 
+	 <!-- GET QUESTLIST -->
+	<select  id="getQuest"  parameterType="quest" resultMap="questSelectMap">
+	  	SELECT * FROM quest	
+	  	WHERE quest_no = #{questNo} 
+	</select>
+
+	<!-- GET QUESTLIST -->
+	<select  id="getQuestList"  parameterType="search" resultMap="questSelectMap">
+	  	SELECT * FROM quest	
+	  	order by quest_no
+	</select>
+	
+	<update id = "completeQuest" parameterType ="quest">
+		UPDATE quest
+		<set>
+			quest_state = 'N'
+		</set>
+		WHERE quest_no = #{questNo}
+	</update>
+
+	 
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.board.QuestionDao">
+	
+	<!-- question 테이블 -->
+	  <resultMap id="questionResultMap" 	type="question">
+        <result column="question_no" 		property="questionNo" 			jdbcType="NUMERIC"/>
+        <result column="nickname" 			property="nickName" 			jdbcType="VARCHAR"/>
+        <result column="question_type" 		property="questionType" 		jdbcType="VARCHAR"/>
+        <result column="question_category" 	property="questionCategory" 	jdbcType="VARCHAR"/>
+        <result column="title" 				property="title" 				jdbcType="VARCHAR"/>
+        <result column="contents" 			property="contents" 			jdbcType="LONGVARCHAR"/>
+        <result column="reg_date" 			property="regDate" 				jdbcType="DATE"/>
+        <result column="reply" 				property="reply" 				jdbcType="LONGVARCHAR"/>
+        <result column="reply_date" 		property="replyDate" 			jdbcType="DATE"/>
+        <result column="question_state" 	property="replyState" 			jdbcType="VARCHAR"/>
+     </resultMap>
+	
+	<!-- =========================SQL쿼리문=================================== -->
+	
+	<!-- Question : INSERT( 질문 추가 하기 ) -->
+	<insert id="addQuestion" parameterType="question" useGeneratedKeys="true" keyProperty="questionNo" keyColumn="question_no">
+		INSERT INTO question (nickname, question_type, question_category, title, contents, reg_date , question_state)
+        VALUES (#{nickName}, #{questionType}, #{questionCategory}, #{title}, #{contents}, now(), 1)
+	</insert>
+	
+	<!-- Reply : UPDATE ( 답변 등록 및 변경 하기 ) -->
+	<update id="updateReply" parameterType="question">
+		UPDATE question
+		<set>
+			reply = #{reply},
+			question_state = 3,
+			reply_date = now()
+		</set>
+		WHERE question_no = #{questionNo}
+	</update>
+	
+	<!-- Question : DELETE( 질문 삭제 하기 ) -->
+	<delete id="deleteQuestion" parameterType="int">
+        DELETE FROM question 
+        WHERE question_no = #{questionNo}
+    </delete>
+	
+	<!-- Question : UPDATE ( 질문 변경 하기 ) -->
+	<update id="updateQuestion" parameterType="int">
+		UPDATE question
+		<set>
+			nickname = #{nickName},
+			title = #{title},
+			contents = #{contents},
+			reg_date = now()
+		</set>
+		WHERE question_no = #{questionNo}
+	</update>
+	
+    <!-- Question : SELECT getQuestion ( 질문 하나 찾기 ) -->
+     <select id="getQuestionById" parameterType="int" resultMap="questionResultMap">
+        SELECT 
+        question_no, nickname, question_type, question_category, title, contents, reg_date, reply, reply_date, question_state
+        FROM question
+        WHERE question_no = #{questionNo}
+    </select>
+ 
+		 
+	<!-- Question : SELECT LIST getQuestionList ( 질문 목록 찾기 ) -->
+	<select  id="getQuestionList"  parameterType="Map"	resultMap="questionResultMap">
+	  	SELECT 
+	  	question_no, nickname, question_type, question_category, title, reg_date, question_state
+	  	FROM question
+		WHERE  question_type = #{questionType}
+	 </select>
+
+	
+		 
+</mapper>

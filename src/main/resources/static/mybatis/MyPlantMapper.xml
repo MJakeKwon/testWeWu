@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+	
+	<resultMap id="myPlantSelectMap" type="myPlant" >
+		<result property="myPlantNo" 			column="my_plant_no" 		jdbcType="INTEGER"/>
+		<result property="myPlantState"		 	column="my_plant_state" 	jdbcType="VARCHAR" />
+		<result property="myPlantName" 		  	column="my_plant_name" 		jdbcType="VARCHAR" />
+		<result property="myPlantExp" 			column="my_plant_exp" 		jdbcType="INTEGER" />
+		<result property="plantStartDate" 		column="plant_start_date" 	jdbcType="DATE" />
+		<result property="plantEndDate"		 	column="plant_end_date"		jdbcType="DATE"/>
+		<result property="myPlantLevl"			column="my_plant_levl" 		jdbcType="VARCHAR"/>
+		<result property="weatherNo"			column="weather_no"			jdbcType="INTEGER"/>
+		<result property="weatherImg"			column="weather_img"		jdbcType="VARCHAR"/>
+		<result property="plantLevl.plantLevlNo" column="plant_levl_no"		jdbcType="INTEGER"/>
+		<result property="plant.plantNo" 		column="plant_no"			jdbcType="INTEGER"/>
+	</resultMap>	
+	
+	
+		
+	<!--  ADD RANDOMPLANT -->
+	<insert id="addRandomPlant" parameterType="myPlant">
+		INSERT INTO my_plant (my_plant_state,my_plant_name,my_plant_exp,plant_start_date,nickname,plant_no)
+		VALUE ('Y',#{myPlantName},0,now(),#{nickname},#{plant.plantNo})
+	</insert>
+
+	<select id ="getMyPlant" parameterType="int" resultMap="myPlantSelectMap">
+		SELECT 
+			m.*,le.plant_levl_no
+    	FROM 
+    		my_plant m , plant_levl le
+    	WHERE m.plant_no = le.plant_no	
+		AND my_plant_no = #{myPlantNo}
+		AND m.my_plant_exp between le.plant_min_exp and le.plant_max_exp;
+	</select>
+	
+	<!-- GET MYPLANTliST -->
+	<select id="getMyPlantList" parameterType="map" resultMap="myPlantSelectMap" >
+		SELECT 
+			m.*,le.plant_levl_no
+    	FROM 
+    		my_plant m , plant_levl le
+  	 	WHERE m.plant_no = le.plant_no
+  	 	<if test='search.searchKeyword == "current"'>
+  	 		AND m.my_plant_state = 'Y'
+  	 	</if>
+  	 	<if test='search.searchKeyword == "past"'>
+  	 		AND m.my_plant_state = 'N'
+  	 	</if>
+  	 	AND m.nickname = #{user.nickname}  		
+		ORDER BY m.my_plant_no DESC
+	</select>
+		
+	<!-- UPDATE MYPLANT NAME -->
+	<update id="updateMyPlant" parameterType="myPlant">
+		UPDATE my_plant
+	   	<set>
+	   		<if test='myPlantName != null'>
+	   			my_plant_name = #{myPlantName},
+	   		</if>
+	   		<if test='myPlantExp != 0'>
+	   			my_plant_exp = #{myPlantExp},
+	   		</if>
+	   		my_plant_no = #{myPlantNo}
+	   	</set>
+	   	WHERE my_plant_no = #{myPlantNo}
+	 </update>
+	 
+	 <!-- DELETE MYPLANT -->
+	 <update id="deleteMyPlant" parameterType="int">
+	 	UPDATE my_plant
+	 	<set>	
+	 		my_plant_state = 'N'
+	 	</set>
+	 	WHERE my_plant_no = #{myPlantNo}
+	 </update>
+	
+	 <update id="donateMyPlant" parameterType="int">
+	 	UPDATE my_plant
+	 	<set>	
+	 		my_plant_state = 'N'
+	 	</set>
+	 	WHERE my_plant_no = #{myPlantNo}
+ 	</update>
+	
+</mapper>

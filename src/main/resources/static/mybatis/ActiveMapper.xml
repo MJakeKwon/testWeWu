@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.active.ActiveDao">
+
+	<!-- 활동 resultMap -->
+	<resultMap type="life.wewu.web.domain.active.Active" id="ActiveResultMap">
+		<result column="active_no" property="activeNo" jdbcType="INTEGER" />
+		<result column="group_no" property="groupNo" jdbcType="INTEGER" />
+		<result column="active_name" property="activeName" jdbcType="VARCHAR" />
+		<result column="active_start_date" property="activeStartDate" jdbcType="DATE" />
+		<result column="active_end_date" property="activeEndDate" jdbcType="DATE" />
+		<result column="active_x" property="activeX" jdbcType="VARCHAR" />
+		<result column="active_y" property="activeY" jdbcType="VARCHAR" />
+		<result column="active_start_time" property="activeStartTime" jdbcType="VARCHAR" />
+		<result column="active_end_time" property="activeEndTime" jdbcType="VARCHAR" />
+		<result column="active_info" property="activeInfo" jdbcType="VARCHAR" />
+		<result column="active_local" property="activeLocal" jdbcType="VARCHAR" />
+		<result column="active_reg_date" property="activeRegDate" jdbcType="DATE" />
+		<result column="state_flag" property="stateFlag" jdbcType="VARCHAR" />
+		<result column="active_url" property="activeUrl" jdbcType="VARCHAR" />
+		<result column="active_short_url" property="activeShortUrl" jdbcType="VARCHAR" />
+		<result column="leader_nick" property="leaderNick" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap type="life.wewu.web.domain.active.ActiveHash" id="ActiveHashResultMap">
+		<result column="hash_no" property="hashNo" jdbcType="INTEGER" />
+		<result column="active_no" property="activeNo" jdbcType="INTEGER" />
+		<result column="hash_name" property="hashName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 활동 등록 -->
+	<insert id="addActive" parameterType="life.wewu.web.domain.active.Active" useGeneratedKeys="true" keyProperty="activeNo" >
+	
+		INSERT INTO active
+		(group_no, active_name, active_start_date, active_end_date, active_x, active_y, 
+		active_start_time, active_end_time, active_info, active_local, active_reg_date,
+		state_flag, active_url, active_short_url)
+		VALUES (
+			#{groupNo}, #{activeName}, #{activeStartDate}, #{activeEndDate}, #{activeX}, #{activeY},
+			#{activeStartTime}, #{activeEndTime}, #{activeInfo}, #{activeLocal}, curdate(), 'Y', 
+			#{activeUrl}, #{activeShortUrl}
+		)
+		
+	</insert>
+	
+	<!-- 활동 상세 조회 -->
+	<select id="getActive" parameterType="int" resultMap="ActiveResultMap" >
+	
+		SELECT a.*, g.leader_nick FROM active a, group_info g
+		<where>
+			a.group_no = g.group_no
+			AND active_no = #{activeNo}
+		</where>
+	
+	</select>
+	
+	<!-- 활동 수정 -->
+	<update id="updateActive" parameterType="life.wewu.web.domain.active.Active">
+	
+		UPDATE active
+		<set>
+			active_name = #{activeName}, 
+			active_start_date = #{activeStartDate}, 
+			active_end_date = #{activeEndDate}, 
+			active_x = #{activeX}, 
+			active_y = #{activeY}, 
+			active_start_time = #{activeStartTime}, 
+			active_end_time = #{activeEndTime}, 
+			active_info = #{activeInfo}, 
+			active_local = #{activeLocal},
+			<if test="activeUrl != null">
+				active_url = #{activeUrl},
+				active_short_url = #{activeShortUrl}
+			</if>
+			
+		</set>
+		<where>
+			active_no = #{activeNo}
+		</where>
+	
+	</update>
+	
+	<!-- 활동 삭제 -->
+	<update id="deleteActive" parameterType="int">
+	
+		UPDATE active
+		<set>
+			state_flag = 'D'
+		</set>
+		<where>
+			active_no = #{activeNo}
+		</where>
+	
+	</update>
+	
+	<!-- 지도의 활동 -->
+	<select id="getActiveList" parameterType="life.wewu.web.common.Search" resultMap="ActiveResultMap">
+	
+		SELECT DISTINCT a.*, leader_nick FROM active a
+		LEFT JOIN group_info g ON a.group_no = g.group_no
+		LEFT JOIN active_hash ah ON a.active_no = ah.active_no
+		<where>
+			TIMESTAMPDIFF(DAY, date(now()), date(active_end_date)) >= 0
+			AND state_flag = 'Y'
+			<if test="searchKeyword != null">
+				AND INSTR(active_name, #{searchKeyword}) > 0 OR INSTR(hash_name, #{searchKeyword}) > 0
+			</if>
+		</where>
+		ORDER BY a.active_no
+		
+	</select>
+	
+	<!-- 모임의 활동 목록 조회 -->
+	<select id="getGroupActiveList" parameterType="java.util.Map" resultMap="ActiveResultMap">
+	
+		SELECT DISTINCT a.*, leader_nick FROM active a
+		LEFT JOIN group_info g ON a.group_no = g.group_no
+		LEFT JOIN active_hash ah ON a.active_no = ah.active_no
+		<where>
+			a.group_no = #{groupNo}
+			AND state_flag = 'Y'
+			<if test='search.searchCondition == "활동중" '>
+				AND TIMESTAMPDIFF(DAY, date(now()), date(active_end_date)) >= 0
+			</if>
+			<if test='search.searchCondition == "활동 종료" '>
+				AND TIMESTAMPDIFF(DAY, date(active_end_date), date(now())) > 0
+			</if>
+			<if test='search.searchKeyword != null and search.searchKeyword != ""'>
+				AND ( INSTR(active_name, #{search.searchKeyword}) > 0 OR INSTR(hash_name, #{search.searchKeyword}) > 0 )
+			</if>
+		</where>
+		ORDER BY a.active_no DESC
+		LIMIT #{offset}, 10
+		
+	</select>
+	
+	
+	<!-- 해쉬태그 추가 -->
+	<insert id="addActiveHash" parameterType="life.wewu.web.domain.active.ActiveHash">
+	
+		INSERT INTO active_hash
+		(active_no, hash_name)
+		VALUES (
+			#{activeNo}, #{hashName}
+		)
+	
+	</insert>
+	
+	<!-- 활동 해쉬태그 가져오기 -->
+	<select id="getActiveHashList" parameterType="int" resultMap="ActiveHashResultMap">
+	
+		SELECT * FROM active_hash
+		<where>
+			active_no = #{activeNo}
+		</where>
+	
+	</select>
+	
+	<!-- 해쉬태그 개수 가져오기 -->
+	<select id="getActiveHashCount" parameterType="int">
+	
+		SELECT COUNT(*) FROM active_hash
+		<where>
+			active_no = #{activeNo}
+		</where>
+	
+	</select>
+	
+	<!-- 활동 해쉬태그 삭제 -->
+	<delete id="deleteActiveHash" parameterType="int">
+	
+		DELETE FROM active_hash
+		<where>
+			active_no = #{activeNo}
+		</where>
+	
+	</delete>
+	
+	<select id="countAllGroupActiveList" parameterType="java.util.Map" resultType="int">
+	
+		SELECT COUNT(*) FROM (
+		
+			SELECT DISTINCT a.*, leader_nick FROM active a
+			LEFT JOIN group_info g ON a.group_no = g.group_no
+			LEFT JOIN active_hash ah ON a.active_no = ah.active_no
+			<where>
+				a.group_no = #{groupNo}
+				AND state_flag = 'Y'
+				<if test='search.searchCondition == "활동중" '>
+					AND TIMESTAMPDIFF(DAY, date(now()), date(active_end_date)) >= 0
+				</if>
+				<if test='search.searchCondition == "활동 종료" '>
+					AND TIMESTAMPDIFF(DAY, date(active_end_date), date(now())) > 0
+				</if>
+				<if test='search.searchKeyword != null and search.searchKeyword != ""'>
+					AND ( INSTR(active_name, #{search.searchKeyword}) > 0 OR INSTR(hash_name, #{search.searchKeyword}) > 0 )
+				</if>
+			</where>
+		
+		) tab
+	
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

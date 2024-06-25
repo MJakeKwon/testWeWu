@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+	
+	<resultMap id="InventorySelectMap" type="inventory" >
+		<result property="itemNo"		column="item_no" 			jdbcType="INTEGER" />
+		<result property="itemPurNo"	column="item_purchase_no" 	jdbcType="VARCHAR" />
+		<result property="itemExp"		column="item_effect"		jdbcType="VARCHAR" />
+		<result property="itemType"		column="item_category" 		jdbcType="VARCHAR" />
+		<result property="itemNum"		column="item_stock" 		jdbcType="INTEGER" />
+	</resultMap>
+	
+	<!-- GET INVENTORY -->
+	<select id="getInventory" parameterType="int" resultMap="InventorySelectMap">
+		SELECT i.item_no ,ip.item_purchase_no , i.item_effect, i.item_category,ip.item_stock
+		FROM item i, item_purchase ip
+		WHERE i.item_no = ip.item_no
+		AND item_purchase_no = #{itemPurNo.itemPurchaseNo}
+	</select>
+	<!-- 아이템 사용, 효과 가져오기 -->
+	<select id="getUseItem" parameterType="int" resultMap="InventorySelectMap">
+		SELECT i.item_no, i.item_effect , ip.item_stock
+		FROM item i , item_purchase ip
+		WHERE i.item_no = p.item_no 
+		AND item_purchase_no = #{itemPurNo.itemPurchaseNo} AND item_stock > 0;
+	</select>
+	
+	
+</mapper>
+			

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE configuration
+ 		 PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ 		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+  						
+<!--	mybatis-config.xml :: MyBatis Framework  MetaData -->
+<configuration>
+
+	<!-- 기타 설정정보 :: [MyBatis_Home]/mybatis-3.2.1.pdf 참조 -->
+	<settings>
+		<setting name="callSettersOnNulls" value="false"/>
+	</settings>	
+	
+	<!-- FQCN(Full Qualified Class Name) Alias(별칭관리) -->
+	
+	<typeAliases>
+		<typeAlias alias="search" type="life.wewu.web.common.Search" />
+		<typeAlias alias="page" type="life.wewu.web.common.Page" />
+		
+		<typeAlias alias="myPlant" type="life.wewu.web.domain.plant.MyPlant" />
+		<typeAlias alias="plant" type="life.wewu.web.domain.plant.Plant" />
+		<typeAlias alias="quest" type="life.wewu.web.domain.plant.Quest" />
+		<typeAlias alias="plantLevl" type="life.wewu.web.domain.plant.PlantLevl" />
+		<typeAlias alias="inventory" type="life.wewu.web.domain.plant.Inventory" /> 
+		
+		
+		<typeAlias alias="group" type="life.wewu.web.domain.group.Group" />
+		<typeAlias alias="groupMember" type="life.wewu.web.domain.group.GroupMember" />
+		<typeAlias alias="groupBoard" type="life.wewu.web.domain.group.GroupBoard" />
+		<typeAlias alias="groupAcle" type="life.wewu.web.domain.group.GroupAcle" />
+		
+		<typeAlias alias="board" type="life.wewu.web.domain.board.Board" />
+		<typeAlias alias="boardFile" type="life.wewu.web.domain.board.BoardFile" />
+		<typeAlias alias="bookmark" type="life.wewu.web.domain.board.Bookmark" />
+		<typeAlias alias="comment" type="life.wewu.web.domain.board.Comment" />
+		<typeAlias alias="donation" type="life.wewu.web.domain.board.Donation" />
+		<typeAlias alias="question" type="life.wewu.web.domain.board.Question" />
+		
+		<typeAlias alias="item" type="life.wewu.web.domain.item.Item" />
+		<typeAlias alias="itemPurchase" type="life.wewu.web.domain.item.ItemPurchase" />
+		<typeAlias alias="shoppingCart" type="life.wewu.web.domain.item.ShoppingCart" />
+		
+		<typeAlias alias="pay" type="life.wewu.web.domain.pay.Pay" />
+	</typeAliases>
+	
+	<!-- 
+	<typeAliases>
+		<typeAlias alias="user" type="spring.domain.User" />
+		<typeAlias alias="search" type="spring.common.Search" />
+	</typeAliases>
+	 -->
+	 <!-- SQL Definition :: file include -->
+
+	<mappers>
+		<mapper resource="static/mybatis/UserMapper.xml"/>
+	
+		<mapper resource="static/mybatis/MyPlantMapper.xml"/>
+		<mapper resource="static/mybatis/PlantMapper.xml"/>
+		<mapper resource="static/mybatis/QuestMapper.xml"/>
+		<mapper resource="static/mybatis/PlantLevlMapper.xml"/>
+		
+		<mapper resource="static/mybatis/groupMapper.xml"/>
+		<mapper resource="static/mybatis/groupMemberMapper.xml"/>
+		<mapper resource="static/mybatis/groupBoardMapper.xml"/>
+		<mapper resource="static/mybatis/groupAcleMapper.xml"/>
+	
+		<mapper resource="static/mybatis/ActiveMapper.xml"/>
+		
+		<mapper resource="static/mybatis/BoardMapper.xml"/>
+		<mapper resource="static/mybatis/QuestionMapper.xml"/>
+		<mapper resource="static/mybatis/DonationMapper.xml"/>
+		
+		<mapper resource="static/mybatis/ItemMapper.xml"/>
+        <mapper resource="static/mybatis/ItemPurchaseMapper.xml"/>
+        <mapper resource="static/mybatis/ShoppingCartMapper.xml"/>
+        
+        <mapper resource="static/mybatis/PayMapper.xml"/>
+        
+        <mapper resource="static/mybatis/InventoryMapper.xml"/>
+	</mappers>
+</configuration>

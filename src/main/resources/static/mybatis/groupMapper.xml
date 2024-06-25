@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.group.GroupDao">
+	
+	<resultMap id="groupSelectMap" type="group">
+		<result property="groupNo" 	  column="group_no"    jdbcType="INTEGER"/>
+		<result property="leaderNick" column="leader_nick" jdbcType="VARCHAR"/>
+		<result property="groupName"  column="group_name"  jdbcType="VARCHAR"/>
+		<result property="groupIntro" column="group_intro" jdbcType="VARCHAR"/>
+		<result property="groupHash"  column="group_hash"  jdbcType="VARCHAR"/>
+		<result property="groupAddr"  column="group_addr"  jdbcType="VARCHAR"/>
+		<result property="groupPlan"  column="group_plan"  jdbcType="VARCHAR"/>
+		<result property="groupPers"  column="group_pers"  jdbcType="INTEGER"/>
+		<result property="groupLevel" column="group_level" jdbcType="VARCHAR"/>
+		<result property="groupFile"  column="group_file"  jdbcType="VARCHAR"/>
+		<result property="openDate"   column="open_date"   jdbcType="DATE"	 />
+		<result property="groupRslt"  column="group_rslt"  jdbcType="VARCHAR"/>
+		<result property="rsltDate"   column="rslt_date"   jdbcType="DATE"	 />
+		<result property="applDate"   column="appl_date"   jdbcType="DATE"	 />
+		<result property="groupRepl"  column="group_repl"  jdbcType="INTEGER"/>
+		<result property="frstQuest"  column="frst_quest"  jdbcType="INTEGER"/>
+		<result property="scndQuest"  column="scnd_quest"  jdbcType="INTEGER"/>
+		<result property="thrdQuest"  column="thrd_quest"  jdbcType="INTEGER"/>
+	</resultMap>
+  	
+	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addGroup" parameterType="group" useGeneratedKeys="true" keyProperty="groupNo">
+  		INSERT
+  		INTO group_info
+  		(
+  			leader_nick, 
+  			group_name, 
+  			group_intro, 
+  			group_hash,
+  			group_addr, 
+  			group_plan, 
+  			group_pers, 
+  			group_level, 
+  			group_file, 
+  			open_date, 
+  			group_rslt,
+  			rslt_date, 
+  			appl_date, 
+  			group_repl, 
+  			frst_quest, 
+  			scnd_quest,
+  			thrd_quest
+  		)
+  		VALUES
+  		(
+  			#{leaderNick},
+  			#{groupName},
+  			#{groupIntro},
+  			#{groupHash},
+  			#{groupAddr},
+  			#{groupPlan},
+  			1,
+  			"D",
+  			#{groupFile},
+  			null,
+  			#{groupRslt},
+  			null,
+  			NOW(), 
+  			null,
+  			null,
+  			null,
+  			null
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroup" parameterType="int" resultMap="groupSelectMap">
+  		SELECT
+  			*
+  		FROM group_info
+  		<where>
+  			group_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupRanking" parameterType="int" resultType="STRING">
+  		SELECT
+  			group_level
+  		FROM group_info
+  		<where>
+  			group_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element --> 
+  	
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<delete id="deleteGroup" parameterType="int" >
+  		delete
+  		FROM group_info
+  		<where>
+  			group_no = #{value}
+  		</where>
+  	</delete>
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+  	<update id="updateGroup" parameterType="group" >
+  		UPDATE group_info
+  		<set>
+		    <if test="leaderNick != null and leaderNick != ''">
+		        leader_nick = #{leaderNick},
+		    </if>
+		    <if test="groupName != null and groupName != ''">
+		        group_name = #{groupName},
+		    </if>
+		    <if test="groupIntro != null and groupIntro != ''">
+		        group_intro = #{groupIntro},
+		    </if>
+		    <if test="groupHash != null and groupHash != ''">
+		        group_hash = #{groupHash},
+		    </if>
+		    <if test="groupAddr != null and groupAddr != ''">
+		        group_addr = #{groupAddr},
+		    </if>
+		    <if test="groupPlan != null and groupPlan != ''">
+		        group_plan = #{groupPlan},
+		    </if>
+		    <if test="groupPers != null and groupPers != ''">
+		        group_pers = #{groupPers},
+		    </if>
+		    <if test="groupLevel != null and groupLevel != ''">
+		        group_level = #{groupLevel},
+		    </if>
+		    <if test="groupFile != null and groupFile != ''">
+		        group_file = #{groupFile},
+		    </if>
+		    <if test="openDate != null and openDate != ''">
+		        open_date = #{openDate},
+		    </if>
+		    <if test="rsltDate != null and rsltDate != ''">
+		        rslt_date = #{rsltDate},
+		    </if>
+		    <if test="applDate != null and applDate != ''">
+		        appl_date = #{applDate},
+		    </if>
+		    <if test="groupRepl != null and groupRepl != ''">
+		        group_repl = #{groupRepl},
+		    </if>
+		    <if test="frstQuest != null and frstQuest != ''">
+		        frst_quest = #{frstQuest},
+		    </if>
+		    <if test="scndQuest != null and scndQuest != ''">
+		        scnd_quest = #{scndQuest},
+		    </if>
+		    <if test="thrdQuest != null and thrdQuest != ''">
+		        thrd_quest = #{thrdQuest},
+		    </if>
+		    <if test="groupRslt != null and groupRslt != ''">
+		        group_rslt = #{groupRslt},
+		    </if>
+		    group_no =  #{groupNo}
+		</set>
+		<where>
+			group_no = #{groupNo}
+		</where>
+  	</update>
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupList" 
+  			  parameterType="search" 
+  			  resultMap="groupSelectMap">
+		SELECT 
+			*
+		FROM group_info
+		<if test='searchCondition == "Ranking"'>
+			<where>
+				group_rslt = 'T'
+			</where>
+			ORDER BY group_level ASC, group_pers DESC;
+		</if>
+		<if test='searchCondition == "My"'>
+			<where>
+				leader_nick = #{searchKeyword}
+			</where>
+		</if>
+		<if test='searchCondition == "E"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "T"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "F"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "search"'>
+			<where>
+				group_name = #{searchKeyword}
+			</where>
+		</if>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+</mapper>

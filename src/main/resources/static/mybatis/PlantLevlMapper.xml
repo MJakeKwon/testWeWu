@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+	
+	<resultMap id="PlantLevlSelectMap" type="plantLevl" >
+		<result property="plantNo"			column="plant_no" 			jdbcType="VARCHAR" />
+		<result property="plantLevlNo"		column="plant_levl_no" 		jdbcType="VARCHAR" />
+		<result property="plantLevl"		column="plant_levl" 		jdbcType="VARCHAR" />
+		<result property="plantMinExp"		column="plant_min_exp" 		jdbcType="INTEGER" />
+		<result property="plantMaxExp"		column="plant_max_exp" 		jdbcType="INTEGER" />
+		<result property="plantFinalLevl"	column="plant_final_levl" 	jdbcType="VARCHAR" />
+		<result property="levlImg"			column="levl_img" 			jdbcType="VARCHAR" />
+	</resultMap>
+	
+
+	<select id ="getPlantLevl" parameterType="int" resultMap="PlantLevlSelectMap">
+		SELECT 
+			*
+    	FROM 
+    		plant_levl
+    	WHERE plant_levl_no = #{plantLevlNo}	
+	</select>
+	
+    <!-- plant_levl 테이블에 데이터 삽입 -->
+    <insert id="addPlantLevl" parameterType="plantLevl">
+        INSERT INTO plant_levl ( plant_no ,plant_levl, plant_min_exp, plant_max_exp, plant_final_levl, levl_img)
+        VALUES ( #{plantNo}, #{plantLevl}, #{plantMinExp}, #{plantMaxExp}, #{plantFinalLevl}, #{levlImg})
+    </insert>
+	
+	
+	<!-- UPDATE PLANTLEVL -->
+	<update id="updatePlantLevl" parameterType="plantLevl">
+		UPDATE plant_levl	
+		<set>
+			plant_levl = #{plantLevl},
+			plant_min_exp = #{plant_min_exp},
+			plant_max_exp = #{plant_max_exp},
+			plant_final_levl = #{plant_final_levl},
+			levl_img = #{levl_img}
+		</set>
+		<where>
+			plant_no = #{plantNo}
+		</where>
+		
+	</update>
+	
+</mapper>
+			

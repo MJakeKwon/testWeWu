@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.board.BoardDao">
+	
+	<!-- board 테이블 -->
+	<resultMap type="board" id="boardSelectMap">
+		<result property="boardNo" 		column="board_no" 		jdbcType="NUMERIC" />
+		<result property="boardType" 	column="type_no" 		jdbcType="NUMERIC" />
+		<result property="nickName" 	column="nickname" 		jdbcType="VARCHAR" />
+		<result property="title" 		column="title" 			jdbcType="VARCHAR"/>
+		<result property="contents" 	column="contents" 		jdbcType="LONGVARCHAR" />		
+		<result property="userGroupNo" 	column="user_group_no" 		jdbcType="LONGVARCHAR" />		
+		
+		<result property="regDate" 		column="reg_date" 		jdbcType="DATE" />
+		<result property="bookmarkCnt"	column="bookmark_cnt" 	jdbcType="NUMERIC" />
+		<result property="views" 		column="views" 			jdbcType="NUMERIC" />
+		<result property="commentCnt" 	column="comments_cnt" 	jdbcType="NUMERIC" />		
+	</resultMap>
+	
+	<!-- comment 테이블 -->
+	<resultMap type="comment" id="commentSelectMap">
+		<result property="commentNo" 		column="comment_no" 		jdbcType="NUMERIC"/>
+		<result property="boardNo" 			column="board_no" 			jdbcType="NUMERIC"/>
+		<result property="commentNickName" 	column="comment_nickname" 	jdbcType="VARCHAR"/>
+		<result property="commentContents" 	column="comment_contents" 	jdbcType="VARCHAR"/>
+		<result property="commentDate" 		column="comment_date" 		jdbcType="DATE"/>
+	</resultMap>
+	
+	<!-- bookmark 테이블 -->
+	<resultMap type="bookmark" id="bookmarkSelectMap">
+		<result property="bookmarkNo" column="bookmark_no" 	jdbcType="NUMERIC"/>
+		<result property="boardNo" 	  column="board_no" 	jdbcType="NUMERIC"/>
+		<result property="nickName"	  column="nickname" 	jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- boardfile 테이블 -->
+	<resultMap type="boardFile" id="boardfileSelectMap">
+		<result property="fileNo" 	column="file_no" 	jdbcType="NUMERIC"/>
+		<result property="boardNo" 	column="board_no" 	jdbcType="NUMERIC"/>
+		<result property="fileName" column="file_name" 	jdbcType="VARCHAR"/>
+		<result property="fileUUID" column="file_uuid" 	jdbcType="VARCHAR"/>
+		<result property="fileExt" 	column="file_ext" 	jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- =========================SQL쿼리문=================================== -->
+	
+	<!-- =========================Bookmark================================== -->
+	<!-- Bookmark : INSERT( 북마크 추가 하기 ) -->
+	<insert id="addBookmark" parameterType="bookmark" useGeneratedKeys="true" keyProperty="bookmarkNo" keyColumn="bookmark_no">
+		INSERT INTO bookmark(board_no, nickname)
+		VALUES (#{boardNo},#{nickName})
+	</insert>
+	
+	<!-- Bookmark : DELETE( 북마크 삭제 하기) -->
+	<delete id="deleteBookmark" parameterType="int">
+		DELETE FROM bookmark
+		WHERE board_no = #{boardNo}
+	</delete>
+	
+	<!-- Bookmark : SELECT LIST( 북마크 리스트 찾기 ) -->
+	<!-- 게시판 카테고리와 사용자 닉네임을 조건으로 리스트 찾음 -->
+	<select id="getBookmarkList" parameterType="map" resultMap="boardSelectMap">
+		SELECT * FROM board
+		WHERE board_no in
+			(SELECT m.board_no
+			FROM bookmark AS m JOIN board AS b
+			ON m.board_no = b.board_no
+			WHERE b.type_no = #{boardType} 
+			AND m.nickname = #{nickName})
+		ORDER BY board_no;
+	</select>
+	
+	<!-- Bookmark : SELECT CNT( 북마크 개수 ) -->
+	<!-- 게시판 번호별로 북마크 개수 찾음 -->
+	<select id="getBookmarkCnt" parameterType="int" resultType="int">
+		SELECT COUNT(bookmark_no)
+		FROM bookmark
+		WHERE board_no= #{boardNo}
+	</select>
+	
+	<!-- =========================Boardfile================================== -->
+	<!-- Boardfile : INSERT ( 파일 추가하기 ) -->
+	<insert id="addBoardFile" parameterType="boardFile" useGeneratedKeys="true" keyProperty="fileNo" keyColumn="file_no">
+        INSERT INTO boardfile (board_no, file_name, file_uuid, file_ext)
+        VALUES (#{boardNo}, #{fileName}, #{fileUUID}, #{fileExt})
+    </insert>
+	
+	<!-- Boardfile : DELETE ( 파일 삭제하기 ) -->
+	<delete id="deleteBoardFile" parameterType="int">
+        DELETE FROM boardfile 
+        <where>
+        board_no = #{boardNo}
+    	</where>
+    </delete>
+    
+	
+	<!-- Boardfile : UPDATE ( 파일 수정하기 ) -->
+	<update id="updateBoardFile" parameterType="boardFile">
+        UPDATE boardfile
+        <set>
+        	<if test="fileName != null and fileName != ''">
+            	file_name = #{fileName},
+            </if>
+            <if test="fileUUID != null and fileUUID != ''">
+            	file_uuid = #{fileUUID},
+            </if>
+            <if test="fileExt != null and fileExt != ''">
+            	file_ext = #{fileExt}
+            </if>
+        </set>
+        <where>
+        	file_no = #{fileNo}
+        </where> 
+    </update>
+	
+	<!-- Boardfile : SELECT LIST ( 게시판별 파일 리스트 찾기 ) -->
+	<!-- 조건: 게시판 번호 -->
+	<select id="getBoardFileList" parameterType="int" resultMap="boardfileSelectMap">
+		SELECT * FROM boardfile 
+		WHERE board_no = #{board_no}
+		ORDER BY board_no;
+	</select>
+	
+	<!-- Boardfile : SELECT ( 게시판별 썸네일 찾기 )-->
+	<!-- 게시판에 업로드된 첫번째 파일 가져옴 -->
+	<select id="getBoardFile" parameterType="int" resultType="int">
+		SELECT file_no
+		FROM boardfile 
+		WHERE board_no = #{board_no}
+		ORDER BY board_no
+		LIMIT 1;
+	</select>
+	
+	<!-- =========================Comment================================== -->
+	<!-- Comment : INSERT ( 댓글 추가하기 ) -->
+	<insert id="addComment" parameterType="comment" useGeneratedKeys="true" keyProperty="commentNo" keyColumn="comment_no">
+        INSERT INTO comment (board_no, comment_nickname, comment_contents, comment_date)
+        VALUES (#{boardNo}, #{commentNickName}, #{commentContents}, now())
+    </insert>
+    
+    <!-- Comment : DELETE ( 댓글 삭제하기 ) -->
+	<delete id="deleteComment" parameterType="int">
+        DELETE FROM comment 
+        WHERE comment_no = #{commentNo}
+    </delete>
+    
+    <!-- Comment : UPDATE ( 댓글 수정하기 ) -->
+	<update id="updateComment" parameterType="comment">
+        UPDATE comment
+        <set>
+        	comment_nickname = #{commentNickName},
+        	comment_contents = #{commentContents},
+            comment_date = now()
+        </set>
+        WHERE comment_no = #{commentNo}
+    </update>
+    
+    <!-- Comment : SELECT LIST ( 게시글별 댓글 찾기 ) -->
+	<!-- 조건: 게시판 번호 -->
+	<select id="getCommentListByBoard" parameterType="int" resultMap="commentSelectMap">
+		SELECT * FROM comment 
+		WHERE board_no = #{boardNo}
+		ORDER BY comment_no;
+	</select>
+	
+	<!-- Comment : SELECT LIST ( 작성자별 댓글 찾기 ) -->
+	<!-- 조건: 작성자 닉네임 -->
+	<select id="getCommentListByNic" parameterType="String" resultMap="commentSelectMap">
+		SELECT * FROM comment 
+		WHERE comment_nickname = #{commentNickName}
+		ORDER BY comment_date;
+	</select>
+	
+	<!-- Comment : COUNT (게시글 별 댓글 수 ) -->
+	<select id="getCommentCnt" parameterType="int" resultType="int">
+		SELECT COUNT(board_no)
+		FROM comment
+		WHERE board_no = #{boardNo}
+	</select>
+	
+	<!-- =========================Board================================== -->
+	<!-- Board : INSERT ( 게시글 등록 ) -->
+	<insert id="addBoard" parameterType="board" useGeneratedKeys="true" keyProperty="boardNo" keyColumn="board_no">
+	 	INSERT INTO board (type_no, nickname,
+	 	 title,user_group_no, contents, reg_date,
+	 	 bookmark_cnt, views, comments_cnt)
+        VALUES (#{boardType}, #{nickName}, 
+        #{title}, #{userGroupNo},
+        #{contents}, now(), 
+        0, 0, 0)
+    </insert>
+    
+    <!-- Board : DELETE ( 게시글 삭제 ) -->
+    <delete id="deleteBoard" parameterType="int">
+        DELETE FROM board 
+        WHERE board_no = #{boardNo}
+    </delete>
+    
+    <!-- Board : UPDATE ( 게시글 수정하기 ) -->
+	 <update	id="updateBoard" parameterType="board" >
+	   	UPDATE board
+	   	<set>
+	   		type_no = #{boardType},
+            nickname = #{nickName},
+            title = #{title},
+            user_group_no = #{userGroupNo},
+            contents = #{contents},
+            reg_date = now()
+	   	</set>
+	   	WHERE board_no = #{boardNo}
+	 </update>
+    
+    <!-- Board : UPDATE VIEWS ( 조회수 수정 ) -->
+    <update id="updateViews" parameterType="int">
+    	UPDATE board
+    	<set>
+    		views = views + 1
+    	</set>
+    	WHERE board_no = #{boardNo}
+    </update>
+    
+    <!-- Board : UPDATE commentCnt ( 댓글 수 수정 ) -->
+    <update id="updateCommentCntUp" parameterType="int">
+    	UPDATE board
+    	<set>
+    		comments_cnt = comments_cnt + 1
+    	</set>
+    	WHERE board_no = #{boardNo}
+    </update>
+    
+    <!-- Board : UPDATE commentCnt ( 댓글 수 수정 ) -->
+    <update id="updateCommentCntDown" parameterType="int">
+    	UPDATE board
+    	<set>
+    		comments_cnt = comments_cnt - 1
+    	</set>
+    	WHERE board_no = #{boardNo}
+    </update>
+    
+    
+     <!-- Board : UPDATE bookmarkCnt ( 즐겨찾기 수 수정 ) -->
+    <update id="updateBookmarkCntUp" parameterType="int">
+    	UPDATE board
+    	<set>
+    		bookmark_cnt = bookmark_cnt + 1
+    	</set>
+    	WHERE board_no = #{boardNo}
+    </update>
+    
+    <!-- Board : UPDATE bookmarkCnt ( 즐겨찾기 수 수정 ) -->
+    <update id="updateBookmarkCntDown" parameterType="int">
+    	UPDATE board
+    	<set>
+    		bookmark_cnt = bookmark_cnt - 1
+    	</set>
+    	WHERE board_no = #{boardNo}
+    </update>
+    
+
+    
+    <!-- Board : SELECT getBoard ( 게시글 하나 찾기 ) -->
+    <select id="getBoard" parameterType="int" resultMap="boardSelectMap">
+        SELECT board_no,type_no, member_no, nickname, title,user_group_no, contents, reg_date, bookmark_cnt, views, comments_cnt 
+        FROM board
+         WHERE board_no = #{boardNo}
+    </select>
+    
+	 
+	 <!-- SQL : SELECT ROW Count + views,  -->	 
+	 <select id="getBoardList" parameterType="Map" resultMap="boardSelectMap">
+        SELECT board_no, type_no, nickname,
+	 	 title,user_group_no, contents, reg_date,
+	 	 bookmark_cnt, views, comments_cnt
+        FROM board
+        <if test="search.searchCondition != null or boardType != null">
+            <where>
+                <if test="search.searchCondition == 0 and search.searchKeyword != ''">
+                    INSTR(title, #{search.searchKeyword}) > 0
+                </if>
+                <if test="search.searchCondition == 1 and search.searchKeyword != ''">
+                    INSTR(contents, #{search.searchKeyword}) > 0
+                </if>
+                <if test="search.searchCondition == 2 and search.searchKeyword != ''">
+                    INSTR(nickname, #{search.searchKeyword}) > 0
+                </if>
+                <if test="boardType != null">
+                    AND type_no = #{boardType}
+                </if>
+            </where>
+        </if>
+    ORDER BY board_no;
+</select>
+	
+	
+	<!-- SQL : SELECT ROW Count -->	 
+	 <select  id="getTotalCount"  parameterType="Map"	 resultType="int">
+	  	SELECT COUNT(b.board_no)
+	  	FROM(	
+	  		SELECT board_no ,title , contents , nickname
+			FROM board
+			<if test="search.searchCondition != null or boardType != null">
+            <where>
+                <if test="search.searchCondition == 0 and  and search.searchKeyword != ''">
+                    INSTR(title, #{search.searchKeyword}) > 0
+                </if>
+                <if test="search.searchCondition == 1 and search.searchKeyword != ''">
+                    INSTR(contents, #{search.searchKeyword}) > 0
+                </if>
+                <if test="search.searchCondition == 2 and search.searchKeyword != ''">
+                    INSTR(nickname, #{search.searchKeyword}) > 0
+                </if>
+                <if test="boardType != null">
+                    AND type_no = #{boardType}
+                </if>
+                
+            </where>
+        </if> ) as b
+		ORDER BY board_no;						
+	 </select>
+	 
+	 
+	 
+</mapper>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="life.wewu.web.service.pay.PayDao">
+	<resultMap id="paySelectMap" type="pay">
+		<result property="payNo"     		column="pay_no"  			jdbcType="INTEGER"/>
+		<result property="buyerNickname"    column="buyer_nickname"  	jdbcType="VARCHAR"/>
+		<result property="payOption"  		column="pay_option" 		jdbcType="VARCHAR"/>
+		<result property="payType"   		column="pay_type"   		jdbcType="VARCHAR"/>
+		<result property="payAmount"  		column="pay_amount"  		jdbcType="INTEGER"/>
+		<result property="currentPoint"  	column="current_point"  	jdbcType="INTEGER"/>
+		<result property="afterChargePoint" column="after_charge_point" jdbcType="INTEGER"/>
+		<result property="payFlag"  		column="pay_flag"  			jdbcType="VARCHAR"/>
+		<result property="payDate"  		column="pay_date"  			jdbcType="DATE"/>
+		<result property="deletePayDate"  	column="delete_pay_date"  	jdbcType="DATE"/>
+	</resultMap>
+  	
+	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addPointCharge" parameterType="pay" useGeneratedKeys="true" keyProperty="payNo,payDate" keyColumn="pay_no,pay_date">
+  		INSERT
+  		INTO pay
+  		(
+  			buyer_nickname, 
+  			pay_option, 
+  			pay_type, 
+  			pay_amount,
+  			current_point, 
+  			after_charge_point,
+  			pay_flag,
+  			pay_date,
+  			delete_pay_date
+  		)
+  		VALUES
+  		(
+  			#{buyerNickname},
+  			#{payOption},
+  			#{payType},
+  			#{payAmount},
+  			#{currentPoint},
+  			#{afterChargePoint},
+  			#{payFlag},
+  			NOW(),
+  			NULL
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getPointCharge" parameterType="int" resultMap="paySelectMap">
+  		SELECT
+  			pay_no,
+  			buyer_nickname, 
+  			pay_option, 
+  			pay_type, 
+  			pay_amount,
+  			current_point, 
+  			after_charge_point,
+  			pay_flag,
+  			pay_date,
+  			delete_pay_date
+  		FROM pay
+  		<where>
+  			pay_no = #{value}
+  		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getPointChargeList" parameterType="search" resultMap="paySelectMap">
+  		SELECT
+  			pay_no,
+  			buyer_nickname, 
+  			pay_option, 
+  			pay_type, 
+  			pay_amount,
+  			current_point, 
+  			after_charge_point,
+  			pay_flag,
+  			pay_date,
+  			delete_pay_date
+  		FROM pay
+  		<if test="searchCondition != null and searchCondition != ''">
+  			<where>
+  			pay_flag = #{searchCondition}
+  		</where>
+  		</if>
+  		
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->     
+	<update id="updatePointCharge" parameterType="pay" >
+	
+	   UPDATE pay
+	   <set>
+	     <if test="buyerNickname != null and buyerNickname != ''">
+	         buyer_nickname = #{buyerNickname},
+	     </if>
+	     <if test="payOption != null and payOption != ''">
+	         pay_option = #{payOption},
+	     </if>
+	     <if test="payType != null and payType != ''">
+	         pay_type = #{payType},
+	     </if>
+	     <if test="payAmount != null and payAmount != ''">
+	         pay_amount = #{payAmount},
+	     </if>
+	     <if test="currentPoint != null and currentPoint != ''">
+	         current_point = #{currentPoint},
+	     </if>
+	     <if test="afterChargePoint != null and afterChargePoint != ''">
+	         after_charge_point = #{afterChargePoint},
+	     </if>
+	     <if test="payFlag != null and payFlag != ''">
+	         pay_flag = #{payFlag},
+	     </if>
+	     <if test="payDate != null and payDate != ''">
+	         pay_date = #{payDate},
+	     </if>
+	     <if test="deletePayDate != null">
+	         delete_pay_date = now(),
+	     </if>
+	     pay_no = #{payNo}
+	 </set>
+	 <where>
+	    pay_no = #{payNo}
+	 </where>
+	</update>
+   	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->
+   	
+  	<!-- Delete 매핑구문 (select SQL 등록) :: delete element -->  	
+  	<delete id="deletePointCharge" parameterType="int">
+  		DELETE FROM 
+  		pay
+  		<where>
+  			pay_no = #{value}
+  		</where>
+  		
+  	</delete>
+  	<!-- Delete 매핑구문 (select SQL 등록) :: delete element -->  
+
+  	
+</mapper>

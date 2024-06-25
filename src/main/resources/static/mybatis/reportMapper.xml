@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace="life.wewu.web.service.report.ReportDao">
+	<resultMap id="reportSelectMap" type="report">
+		<result property="reportNo"     	column="report_no"  		jdbcType="INTEGER"/>
+		<result property="targetNo"     	column="report_target_no"  	jdbcType="INTEGER"/>
+		<result property="reportNickname"   column="report_nickname"    jdbcType="VARCHAR"/>
+		<result property="targetNickname"  	column="target_nickname" 	jdbcType="VARCHAR"/>
+		<result property="rsltFlag"   		column="rslt_flag"   		jdbcType="VARCHAR"/>
+		<result property="rsltDate"  		column="rslt_date"  		jdbcType="DATE"/>
+		<result property="rsltRepl" 		column="rslt_repl"   		jdbcType="VARCHAR"/>
+		<result property="reportNote"   	column="report_note"   		jdbcType="DATE"/>
+		<result property="reportType"  		column="report_type"  		jdbcType="VARCHAR"/>
+		<result property="reportContents"  	column="report_contents"  	jdbcType="VARCHAR"/>
+	</resultMap>
+  	
+	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	<insert id="addReport" parameterType="report" useGeneratedKeys="true" keyProperty="reportNo" keyColumn="report_no">
+  		INSERT
+  		INTO report
+  		(
+  			report_target_no, 
+  			report_nickname, 
+  			target_nickname, 
+  			rslt_flag,
+  			rslt_date, 
+  			rslt_repl,
+  			report_note,
+  			report_type,
+  			report_contents
+  		)
+  		VALUES
+  		(
+  			#{targetNo},
+  			#{reportNickname},
+  			#{targetNickname},
+  			"E",
+  			NOW(),
+  			#{rsltRepl},
+  			#{reportNote},
+  			#{reportType},
+  			#{reportContents}
+  		)
+  	</insert>
+  	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getReport" 
+  			  parameterType="int" 
+  			  resultMap="reportSelectMap">
+		SELECT 
+			*
+		FROM report
+		<where>
+			report_no = #{value}
+		</where>
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getReportList" 
+  			  parameterType="search" 
+  			  resultMap="reportSelectMap">
+		SELECT 
+			*
+		FROM report
+		
+  	</select>
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
+  	
+  	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->  	
+  	<update id="updateReport" parameterType="report" >
+  		
+  		UPDATE report
+  		<set>
+		    <if test="targetNo != null and targetNo != ''">
+		        report_target_no = #{targetNo},
+		    </if>
+		    <if test="reportNickname != null and reportNickname != ''">
+		        report_nickname = #{reportNickname},
+		    </if>
+		    <if test="targetNickname != null and targetNickname != ''">
+		        target_nickname = #{targetNickname},
+		    </if>
+		    <if test="rsltFlag != null and rsltFlag != ''">
+		        rslt_flag = #{rsltFlag},
+		    </if>
+		    <if test="rsltRepl != null and rsltRepl != ''">
+		        rslt_repl = #{rsltRepl},
+		    </if>
+		    <if test="reportNote != null and reportNote != ''">
+		        report_note = #{reportNote},
+		    </if>
+		    <if test="reportType != null and reportType != ''">
+		        report_type = #{reportType},
+		    </if>
+		    <if test="reportContents != null and reportContents != ''">
+		        report_contents = #{reportContents},
+		    </if>
+		    rslt_date = NOW()
+		</set>
+		<where>
+			report_no = #{reportNo}
+		</where>
+  	</update>
+	<!-- UPDATE 매핑구문 (update SQL 등록) :: update element -->
+  	
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<delete id="deleteReport" parameterType="INT" >
+  		delete
+  		FROM report
+  		<where>
+  			report_no = #{value}
+  		</where>
+  	</delete>
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+  	
+</mapper>

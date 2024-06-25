@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.board.DonationDao">
+	
+	<!-- pay 테이블 -->
+	<resultMap type="donation" id="donationSelectMap">
+		<result property="payNo" 	  	column="pay_no"   	jdbcType="INTEGER"/>
+		<result property="userName" 	column="pay_name" 	jdbcType="VARCHAR"/>
+		<result property="email"  		column="pay_email"  jdbcType="VARCHAR"/>
+		<result property="phoneNum" 	column="pay_phone" 	jdbcType="VARCHAR"/>
+		<result property="userBirth"  	column="pay_birth"  jdbcType="VARCHAR"/>
+		<result property="payDate"  	column="pay_date"  	jdbcType="DATE"/>
+		<result property="payOption" 	column="pay_option" jdbcType="VARCHAR"/>
+		<result property="payType" 		column="pay_type" 	jdbcType="VARCHAR"/>
+		<result property="payFlag" 		column="pay_flag" 	jdbcType="VARCHAR"/>
+		<result property="payAmount"  	column="pay_amount" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	<!-- =========================SQL쿼리문=================================== -->
+	
+	<!-- Donation : INSERT( 후원 추가 하기 ) -->
+	<insert id="addDonation" parameterType="donation" useGeneratedKeys="true" keyProperty="payNo" keyColumn="pay_no">
+        INSERT INTO pay 
+        (pay_name, pay_option, pay_type, pay_birth, pay_phone, pay_email, pay_amount, pay_flag, pay_date)
+        VALUES 
+        (#{userName}, #{payOption}, #{payType}, #{userBirth}, #{phoneNum}, #{email}, #{payAmount} ,#{payFlag}, now() )
+    </insert>
+    
+    <!-- Donation : DELETE( 후원 삭제 하기 ) -->
+    <delete id="deleteDonation" parameterType="int">
+        DELETE FROM pay
+        WHERE pay_no = #{payNo}
+    </delete>
+
+    <!-- Donation : SELECT ( 후원 상세 보기 ) -->
+    <select id="getDonationById" parameterType="int" resultMap="donationSelectMap">
+        SELECT pay_no, buyer_nickname, pay_name, pay_option, pay_type, pay_birth, pay_phone, pay_email, pay_amount, current_point, after_charge_point, pay_flag, pay_date, delete_pay_date
+        FROM pay
+        WHERE pay_no = #{payNo}
+    </select>
+    
+    <!-- Donation : SELECT LIST ( 후원 목록 ) -->
+    <select id="getDonationList" parameterType="String" resultMap="donationSelectMap">
+        SELECT pay_no, buyer_nickname, pay_name, pay_option, pay_type, pay_birth, pay_phone, pay_email, pay_amount, current_point, after_charge_point, pay_flag, pay_date, delete_pay_date
+        FROM pay
+        WHERE pay_type = #{payType}
+    </select>
+	
+</mapper>

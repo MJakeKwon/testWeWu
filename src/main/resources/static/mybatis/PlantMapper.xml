@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		
+<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+	
+	<resultMap id="PlantSelectMap" type="plant" >
+		<result property="plantNo" 			column="plant_no" 			jdbcType="INTEGER"/>
+		<result property="plantName"		column="plant_name" 		jdbcType="VARCHAR" />
+		<result property="plantLevl.plantLevlNo"	column="plant_levl_no" 		jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- GET RANDOM PLANT -->
+	<select id="selectRandomPlant"  resultMap="PlantSelectMap">
+		SELECT p.plant_no as plant_no , le.plant_levl_no as plant_levl_no
+		from plant_levl le, plant p
+		WHERE le.plant_levl = '새싹'
+		ORDER BY RAND()
+		limit 1
+	</select>
+	
+	<!-- ADD PLANT -->
+	<insert id="addPlantName" parameterType="plant" useGeneratedKeys="true" keyProperty="plantNo">
+        INSERT INTO plant (plant_name)
+        VALUES (#{plantName})
+    </insert>
+
+	
+	<!-- UPDATE PLANT -->
+	<update id="updatePlant" parameterType="plant">
+		UPDATE plant
+		<set>
+			plant_name = #{plantName}
+		</set>
+			WHERE plant_no = #{plantNo}
+	</update>
+	
+
+	<!-- DELETE PLANT -->
+	<delete id="deletePlant">
+		DELETE FROM plant
+		WHERE plant_no = #{plant_no}
+	</delete>
+	
+
+	<select id = "getPlant" parameterType="int" resultMap="PlantSelectMap">
+		SELECT * from plant
+		WHERE plant_no = #{value}
+	</select>
+	
+	<select id="getPlantList" parameterType="search" resultMap="PlantSelectMap">
+		SELECT p.*, l.*
+		FROM plant p , plant_levl l
+		WHERE p.plant_no = l.plant_no
+		ORDER BY p.plant_no
+
+	</select>
+	
+	<select id="donatePlant" parameterType="int" resultMap="PlantSelectMap">
+		SELECT * from plant
+		WHERE plant_no = #{plantNo}
+	</select>
+	
+</mapper>
+			

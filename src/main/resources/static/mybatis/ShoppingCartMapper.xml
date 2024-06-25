@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.item.ShoppingCartDao">
+
+	<resultMap id="shoppingCartSelectMap" type="shoppingCart">
+      <result property="shoppingCartNo"          column="shopping_cart_no"          jdbcType="INTEGER"/>
+      <result property="nickname"   			 column="nickname"    				jdbcType="VARCHAR" />
+      <result property="itemNo"    				 column="item_no"       			jdbcType="INTEGER" /> 
+      <result property="itemCnt" 				 column="item_cnt" 					jdbcType="INTEGER" />
+      <result property="itemName"   			 column="item_name"    				jdbcType="VARCHAR" />
+      <result property="itemImg" 				 column="item_img" 					jdbcType="VARCHAR" />
+      <result property="itemPrice"             	 column="item_price"       			jdbcType="INTEGER" />
+   </resultMap>
+	
+	<!-- SQL : INSERT 장바구니에 아이템 담기--> 
+	<!--  
+	<insert id="addShoppingCart" parameterType="shoppingCart" useGeneratedKeys="true" keyProperty="shoppingCartNo">
+        INSERT INTO shopping_cart ( nickname, item_no, item_name, item_cnt, item_price, item_img)   
+        VALUES(	#{nickname:VARCHAR}, #{item_no:INT}, #{item_name:VARCHAR}, #{item_cnt:INT}, #{item_price:INT}, #{item_img:VARCHAR})
+	</insert>
+	-->
+	<insert id="addShoppingCart" parameterType="shoppingCart" useGeneratedKeys="true" keyProperty="shoppingCartNo">
+    INSERT INTO shopping_cart (nickname, item_no, item_cnt)
+    VALUES
+    (
+    	#{nickname},
+    	#{itemNo},
+    	1
+	)
+	</insert>
+	
+        
+    <!-- SQL : SELECT 장바구니 목록조회-->
+    <!--  
+	<select id="getShoppingCartList" parameterType="int" resultMap="shoppingCartSelectMap">
+		SELECT
+		shopping_cart_no, item_name, item_cnt, item_price, item_img  
+		FROM shopping_cart
+		WHERE shopping_cart_no = #{value}
+	</select>
+	-->
+	<select id="getShoppingCartList" parameterType="STRING" resultMap="shoppingCartSelectMap">
+    SELECT
+        sc.shopping_cart_no, 
+        sc.nickname,
+        sc.item_no,
+        sc.item_cnt, 
+        i.item_name, 
+        i.item_price, 
+        i.item_img
+    FROM shopping_cart sc
+    INNER JOIN item i ON sc.item_no = i.item_no
+    WHERE sc.nickname = #{nickname}
+	</select>
+       
+	<!-- SQL : DELETE 장바구니에 담은 아이템 삭제-->
+	 <delete	id="deleteShoppingCartList" 	parameterType="int" >
+	 	DELETE 
+		FROM shopping_cart 
+		WHERE shopping_cart_no = #{value}
+	 </delete>
+		
+	
+</mapper>

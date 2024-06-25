@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="life.wewu.web.service.item.ItemPurchaseDao">
+ 	
+ 	
+	<resultMap id="itemPurchaseSelectMap" type="itemPurchase">
+      <result property="itemPurchaseNo"          	column="item_purchase_no"          	jdbcType="INTEGER" />
+      <result property="itemNo"          			column="item_no"          			jdbcType="INTEGER" />
+      <result property="buyerNickname"   			column="buyer_nickname"    			jdbcType="VARCHAR" />
+      <result property="itemCnt"   					column="item_cnt"       			jdbcType="INTEGER" /> 
+      <result property="itemPurchaseDate" 			column="item_purchase_date" 		jdbcType="DATE" />
+      <result property="refundCompdate"             column="refund_compdate"       		jdbcType="DATE" />
+      <result property="refundAskdate"    			column="refund_askdate"       		jdbcType="DATE" />
+      <result property="itemStock"          		column="item_stock"       			jdbcType="INTEGER" />
+      <result property="refundFlag"          	    column="refund_flag"       			jdbcType="VARCHAR" />
+      <result property="afterRefundpoint"           column="after_refundpoint"       	jdbcType="INTEGER" />
+      <result property="beforeRefundpoint"          column="before_refundpoint"      	jdbcType="INTEGER" />
+      <result property="currentPoint"          	    column="current_point"       		jdbcType="INTEGER" />
+      <result property="refundPoint"          		column="refund_point"       		jdbcType="INTEGER" />
+      <result property="itemName"   				column="item_name"    				jdbcType="VARCHAR" />  
+      <result property="itemPrice"             		column="item_price"       			jdbcType="INTEGER" />    
+   </resultMap>
+   
+	<!-- SQL : INSERT 아이템 구매하기 -->    <!-- parameterType는 매개변수 쓸 때만 넣음. 안 쓸 땐 안 넣음.
+	resultMap은 도메인이랑 같이 가져가는 게 맞음.  -->
+    <insert id="addPurchase" parameterType="itempurchase" useGeneratedKeys="true" keyProperty="itemPurchaseNo">
+    	INSERT 
+    	INTO item_purchase (item_no, buyer_nickname, item_cnt, item_purchase_date, 
+         item_stock,refund_flag, 
+        after_refundpoint, before_refundpoint, current_point, refund_point) 
+		VALUES(
+			#{itemNo},
+	        #{buyerNickname}, 
+	        #{itemCnt}, 
+	        NOW(), 
+	        #{itemStock}, 
+	        #{refundFlag}, 
+	        #{afterRefundpoint}, 
+	        #{beforeRefundpoint}, 
+	        #{currentPoint}, 
+	        #{refundPoint}
+	        )
+	</insert>
+	
+	<!-- SQL : SELECT 아이템 환불내역 목록조회
+	 <select id="getRefundPointList"  resultMap="itemPurchaseSelectMap"> 
+		  SELECT 
+		  item_purchase_no, refund_compdate, item_name, refund_point 
+		  FROM item_purchase
+		  WHERE refund_askdate IS NOT NULL
+	 </select>
+   	 -->
+	<select id="getRefundPointList" parameterType="STRING" resultMap="itemPurchaseSelectMap"> 
+	    SELECT 
+	        ip.item_purchase_no, 
+	        ip.refund_compdate, 
+	        i.item_name, 
+	        ip.refund_point
+	    FROM item_purchase ip
+	    INNER JOIN item i ON ip.item_no = i.item_no
+	    WHERE ip.refund_flag = 'Y'
+	    AND buyer_nickname = #{buyerNickname}
+	</select>
+   	
+   	<!-- SQL : SELECT 아이템 환불내역 상세정보조회 
+     <select id="getRefundPoint"  resultMap="itemPurchaseSelectMap">   
+	      SELECT
+	      item_purchase_no, refund_compdate, refund_askdate, refund_flag, item_name, item_cnt, item_price, refund_point, before_refundpoint, after_refundpoint
+	      FROM item_purchase
+	      WHERE refund_askdate IS NOT NULL
+    </select>
+    -->
+    <!-- SQL : SELECT 아이템 환불내역 상세정보조회 -->
+	<select id="getRefundPoint" parameterType="INT" resultMap="itemPurchaseSelectMap">
+	    SELECT
+	        ip.item_purchase_no, 
+	        ip.refund_compdate, 
+	        ip.refund_askdate, 
+	        ip.refund_flag, 
+	        i.item_name, 
+	        ip.item_cnt, 
+	        i.item_price, 
+	        ip.refund_point, 
+	        ip.before_refundpoint, 
+	        ip.after_refundpoint
+	    FROM item_purchase ip
+	    INNER JOIN item i ON ip.item_no = i.item_no
+	    WHERE ip.refund_flag = 'Y'
+	    AND ip.item_purchase_no = #{itemPurchaseNo}
+	</select>
+    
+    <!-- SQL : SELECT 아이템 판매내역 목록조회 
+	<select id="getItemSalesHistoryList" parameterType="int" resultMap="itemPurchaseSelectMap">
+        SELECT
+        item_purchase_no, item_purchase_date, item_name, item_cnt, item_price      
+        FROM item_purchase
+        WHERE item_purchase_no = #{value}
+    </select>
+    -->
+    <select id="getItemSalesHistoryList" resultMap="itemPurchaseSelectMap">
+	    SELECT
+	        ip.item_purchase_no, 
+	        ip.item_purchase_date, 
+	        i.item_name, 
+	        ip.item_cnt, 
+	        i.item_price
+	    FROM item_purchase ip
+	    INNER JOIN item i ON ip.item_no = i.item_no
+	    ORDER BY ip.item_purchase_date desc
+	</select>
+    
+	<!-- SQL : SELECT 아이템 판매내역 상세정보조회 
+	<select id="getItemSalesHistory" parameterType="int" resultMap="itemPurchaseSelectMap">
+        SELECT
+        item_purchase_no, item_purchase_date, item_name, item_cnt, item_price, buyer_nickname 
+        FROM item_purchase
+        WHERE item_purchase_no = #{value}
+    </select>
+     -->
+	<select id="getItemSalesHistory" parameterType="int" resultMap="itemPurchaseSelectMap">
+    SELECT
+        ip.item_purchase_no, 
+        ip.item_purchase_date, 
+        i.item_name, 
+        ip.item_cnt, 
+        i.item_price, 
+        ip.buyer_nickname
+    FROM item_purchase ip
+    INNER JOIN item i ON ip.item_no = i.item_no
+    WHERE ip.item_purchase_no = #{value}
+	</select>
+	
+	<!-- SQL : SELECT 아이템 구매내역 목록조회 -->
+    <select id="getItemPurchaseHistoryList" parameterType="MAP" resultMap="itemPurchaseSelectMap">
+    SELECT
+        ip.item_purchase_no,
+        ip.item_purchase_date,
+        i.item_name,
+        ip.item_cnt,
+        i.item_price,
+        ip.buyer_nickname,
+        ip.refund_flag,
+        i.item_no
+    FROM item_purchase ip
+    INNER JOIN item i ON ip.item_no = i.item_no 
+    <where>
+        buyer_nickname = #{buyerNickname}
+        <if test='search.searchCondition == "itemName"'>
+        	AND i.item_name LIKE CONCAT('%', #{search.searchKeyword}, '%')
+        </if>
+        
+    </where>
+	</select>
+    
+    <!-- SQL : SELECT 아이템 구매내역 상세정보조회 -->
+	<select id="getItemPurchaseHistory" parameterType="INT" resultMap="itemPurchaseSelectMap">
+	    SELECT
+	        ip.item_purchase_no,
+	        ip.item_purchase_date,
+	        i.item_name,
+	        ip.item_cnt,
+	        ip.item_stock,
+	        i.item_price,
+	        ip.buyer_nickname,
+	        ip.refund_flag,
+	        i.item_no
+	    FROM item_purchase ip
+	    INNER JOIN item i ON ip.item_no = i.item_no  <!--  item_purchase 테이블과 item 테이블을 item_no로 INNER JOIN--> 
+	    <where>
+        	ip.item_purchase_no = #{itemPurchaseNo}
+    	</where>
+	</select>
+	
+    <!-- SQL : DELETE 아이템 구매 취소-->
+ 	<update id="updatePurchase" parameterType="itempurchase">
+	     UPDATE item_purchase
+	     <set>
+            refund_flag = 'Y',
+            current_point = #{currentPoint},
+            before_refundpoint = #{beforeRefundpoint},
+            refund_point = #{refundPoint},
+            after_refundpoint = #{afterRefundpoint},
+            refund_askdate = NOW(),
+            refund_compdate = NOW()
+	    </set>
+	    <where>
+	        item_purchase_no = #{itemPurchaseNo}
+	    </where>
+	</update>
+	
+</mapper>
