@@ -11,13 +11,13 @@ import java.util.Date;
 @Service
 public class CaptchaService {
 
-    @Value("${naver.captcha.clientId}")
+    @Value("${naver.client.id}")
     private String clientId;
 
-    @Value("${naver.captcha.clientSecret}")
+    @Value("${naver.client.secret}")
     private String clientSecret;
 
-    public String getKey() throws Exception {
+    public String getCaptchaKey() throws Exception {
         String code = "0";
         String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha/v1/nkey?code=" + code;
         URL url = new URL(apiURL);
@@ -41,6 +41,8 @@ public class CaptchaService {
         br.close();
         return response.toString();
     }
+    
+    
 
     public void getImage(String key) throws Exception {
         String apiURL = "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key=" + key + "&X-NCP-APIGW-API-KEY-ID=" + clientId;

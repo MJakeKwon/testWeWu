@@ -5,10 +5,24 @@
 <head>
     <meta charset="UTF-8">
     <title>loginView</title>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
         $(function() {
+            let captchaKey = '';
+
+            function loadCaptcha() {
+                $.get("/captcha/key", function(data) {
+                    if (data.success) {
+                        captchaKey = data.key.match(/"key":"(\w+)"/)[1];
+                        $("#captcha-image").attr("src", "https://naveropenapi.apigw.ntruss.com/captcha-bin/v1/ncaptcha?key=" + captchaKey);
+                    } else {
+                        alert("캡차를 불러오는 중 오류가 발생했습니다.");
+                    }
+                });
+            }
+
+            loadCaptcha();
+
             $("#userId").focus();
 
             $("a.login-btn").on("click", function(event) {
@@ -17,19 +31,19 @@
                 var pw = $("#password").val();
                 var captchaValue = $("#captcha").val();
 
-                if(id == null || id.length < 1) {
+                if (id == null || id.length < 1) {
                     alert('ID 를 입력하지 않으셨습니다.');
                     $("#userId").focus();
                     return;
                 }
 
-                if(pw == null || pw.length < 1) {
+                if (pw == null || pw.length < 1) {
                     alert('패스워드를 입력하지 않으셨습니다.');
                     $("#password").focus();
                     return;
                 }
 
-                if(captchaValue == null || captchaValue.length < 1) {
+                if (captchaValue == null || captchaValue.length < 1) {
                     alert('캡차 값을 입력하지 않으셨습니다.');
                     $("#captcha").focus();
                     return;
@@ -38,17 +52,19 @@
                 $.ajax({
                     url: "/captcha/compare",
                     method: "POST",
-                    data: { userId: id, userPwd: pw, captcha: captchaValue },
+                    data: { userId: id, userPwd: pw, captcha: captchaValue, key: captchaKey },
                     success: function(response) {
-                        if(response.success) {
+                        if (response.success) {
                             $("form").attr("method", "POST").attr("action", "/user/login").submit();
                         } else {
                             alert('캡차 값이 올바르지 않습니다.');
                             $("#captcha").focus();
+                            loadCaptcha();
                         }
                     },
                     error: function() {
                         alert('캡차 확인 중 오류가 발생했습니다.');
+                        loadCaptcha();
                     }
                 });
             });
@@ -136,6 +152,7 @@
                                 <input type="password" class="form-control form-control-lg" name="userPwd" id="password" placeholder="패스워드">
                             </div>
                             <div class="form-group">
+                                <img id="captcha-image" src="" alt="CAPTCHA Image">
                                 <input type="text" class="form-control form-control-lg" name="captcha" id="captcha" placeholder="캡차 값">
                             </div>
                             <div class="mt-3">
