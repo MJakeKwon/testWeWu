@@ -7,11 +7,15 @@ package life.wewu.web.domain.group;
 import java.sql.Date;
 
 import life.wewu.web.domain.user.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Group {
 
 	///필드

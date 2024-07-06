@@ -19,7 +19,7 @@ public interface UserDao {
 	
 	public void deleteUser(String userId) throws Exception;
 	
-	public List<User> getUserList(Search search) throws Exception ;
+	public List<User> getUserList(Search search, int startRowNum,int pageSize) throws Exception ;
 	
 	public User getUser(String userId) throws Exception;
 	
@@ -37,6 +37,10 @@ public interface UserDao {
 
 	public void updatePwd(User user) throws Exception;
 	
-	public int getTotalCount(Search search) throws Exception ;
+	public int getTotalCount(Search search) throws Exception;
+	
+	public void updateRole(User user) throws Exception;
+
+	public void updateUserPoint(Map<String, Object> params) throws Exception;
 
 }

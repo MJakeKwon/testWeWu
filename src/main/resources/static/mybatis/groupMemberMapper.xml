@@ -46,7 +46,12 @@
   			#{groupNo},
   			#{memberNickName},
   			"N",
-  			"E",
+  			<if test='joinFlag != null'>
+				#{joinFlag},
+			</if>
+			<if test='joinFlag == null'>
+				'E',
+			</if>
   			NULL,
   			NOW(),
   			NOW(),
@@ -66,7 +71,7 @@
   			*
   		FROM group_member
   		<where>
-  			member_nickname = #{memberNickNmae}
+  			member_nickname = #{memberNickName}
   			AND
   			group_no = #{groupNo}
   		</where>
@@ -173,5 +178,14 @@
   		</where>
   	</delete>
   	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
+  	
+  	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element -->  	
+  	<select id="groupMemberCnt" parameterType="int" resultType="int">
+  		SELECT COUNT(*)
+		FROM group_member
+		WHERE group_no = ${groupNo}
+		AND (join_flag = 'T' OR join_flag = 'L')
+  	</select>
+   	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
 	
 </mapper>

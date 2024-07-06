@@ -1,6 +1,7 @@
 package life.wewu.web.domain.plant;
 
 import java.sql.Date;
+import java.util.List;
 
 import life.wewu.web.domain.user.User;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,9 @@ public class MyPlant {
 	
 	//field
 	
+	private int plantNo;
+	private int plantLevlNo;
+	private String nickname;		//식물주인
 	private int myPlantNo; 			//나의식물식별번호
 	private String myPlantState;	//나의식물상태(Y,N)
 	private String myPlantName;		//나의식물이름
@@ -27,6 +31,7 @@ public class MyPlant {
 	private String weatherImg;		//날씨이미지
 	private PlantLevl plantLevl;	//PlantLevl
 	private Plant plant; 			//Plant
-	private String nickname;		//식물주인
+	
+	private List<Integer> plantLevlNoList; // 식물 단계 식별번호 목록
 	
 }

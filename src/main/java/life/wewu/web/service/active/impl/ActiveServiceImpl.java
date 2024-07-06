@@ -197,22 +197,28 @@ public class ActiveServiceImpl implements ActiveService {
 		return activeList;
 	}
 	
-	private boolean isSameDay(Date date1, Date date2) {
-	    Calendar cal1 = Calendar.getInstance();
-	    cal1.setTime(date1);
-	    Calendar cal2 = Calendar.getInstance();
-	    cal2.setTime(date2);
-	    return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-	           cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+	@Override
+	public List<Active> getGroupActiveAllList(int groupNo) {
+		
+		return activeDao.getGroupActiveAllList(groupNo);
+		
 	}
-
+	
 	@Override
 	public boolean isLastPage(Map<String, Object> map) {
 		// TODO Auto-generated method stub
 		
 		int allCount = activeDao.countAllGroupActiveList(map);
 		
+		if(allCount == 0) {
+			return true;
+		}
+		
 		int lastPage = (allCount / 10) + 1;
+		
+		if(allCount % 10 == 0) {
+			lastPage -= 1;
+		}
 		
 		Search search = (Search)map.get("search");
 		
@@ -223,6 +229,15 @@ public class ActiveServiceImpl implements ActiveService {
 		}
 		
 		return false;
+	}
+	
+	private boolean isSameDay(Date date1, Date date2) {
+	    Calendar cal1 = Calendar.getInstance();
+	    cal1.setTime(date1);
+	    Calendar cal2 = Calendar.getInstance();
+	    cal2.setTime(date2);
+	    return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+	           cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
 	}
 	
 }

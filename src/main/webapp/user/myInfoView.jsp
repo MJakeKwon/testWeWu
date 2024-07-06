@@ -6,10 +6,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Update User Info</title>
+     <!-- HEADER -->
+    <jsp:include page="/header.jsp"/>
+    <!-- HEADER -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="../../images/favicon.png" />
+    
     <style>
-        .info-label {
-            font-weight: bold;
+    
+	    .jumbotron {
+            position: relative;
+            background-color: white; /* 배경 색깔 흰색으로 변경 */
+            padding: 10rem 0rem 11rem 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: -24rem;
+        }
+        
+        .jumbotron img {
+            width: 100%;
+        }
+        
+        .jumbotron-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
         }
         .info-value {
             border: 1px solid #ccc;
@@ -38,95 +60,126 @@
         .text-success {
             color: #28a745 !important;
         }
+        .mb-4 {
+            margin-top: -8.5rem !important;
+            color: #3b5cff;
+            font-weight: bold;
+            text-align: center;
+                font-size: 30px;
+        }
+        .info-label{
+        	color: #2b8915;
+       	 	font-weight: bold;
+           	text-align: center;
+            font-size: 30px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- HEADER -->
-    <jsp:include page="/header.jsp"/>
-    <!-- HEADER -->
+   	  <div class="jumbotron">
+	    <div class="container">
+	      <img src="/images/wewujumbo.jpg" alt="Background Image">
+	    </div>
+	  </div>
     <div class="main-panel">
         <div class="content-wrapper">
-		    <div class="container-scroller">
-		        <div class="container-fluid page-body-wrapper full-page-wrapper">
-		            <div class="content-wrapper d-flex align-items-center auth px-0">
-		                <div class="row w-100 mx-0">
-		                    <div class="col-lg-8 mx-auto">
-		                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-		                            <h4 class="mb-4">회원 정보 수정</h4>
-		                            <form id="updateForm" class="pt-3 form-horizontal" method="POST" action="/user/update">
-		                                <input type="hidden" name="userId" id="userId" value="${user.userId}">
-		                                <div class="form-group row">
-		                                    <label for="userName" class="col-sm-3 col-form-label info-label">이름</label>
-		                                    <div class="col-sm-9">
-		                                        <input type="text" class="form-control form-control-lg" id="userName" name="userName" value="${user.userName}" required <c:if test="${user.role == 2}">disabled</c:if>>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="nickname" class="col-sm-3 col-form-label info-label">닉네임</label>
-		                                    <div class="col-sm-9">
-		                                        <input type="text" class="form-control form-control-lg" id="nickname" name="nickname" value="${user.nickname}" required <c:if test="${user.role == 2}">disabled</c:if>>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="email" class="col-sm-3 col-form-label info-label">이메일</label>
-		                                    <div class="col-sm-9">
-		                                        <input type="email" class="form-control form-control-lg" id="email" name="email" value="${user.email}" required>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="phoneNum" class="col-sm-3 col-form-label info-label">휴대전화번호</label>
-		                                    <div class="col-sm-9">
-		                                        <div class="input-group">
-		                                            <input type="text" class="form-control form-control-lg" id="phoneNum" name="phoneNum" value="${user.phoneNum}" required readonly>
-		                                            <div class="input-group-append">
-		                                                <button type="button" class="btn btn-primary" onclick="openPhoneNumberModal()">핸드폰 번호 변경</button>
-		                                            </div>
-		                                        </div>
-		                                        <span id="verificationCodeMsg" class="help-block"></span>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="password" class="col-sm-3 col-form-label info-label">비밀번호</label>
-		                                    <div class="col-sm-9">
-		                                        <div class="input-group">
-		                                            <input type="text" class="form-control form-control-lg" id="password" name="password" value="비밀번호를 변경하시려면 비밀번호 변경버튼을 누르세요." readonly>
-		                                            <div class="input-group-append">
-		                                                <button type="button" class="btn btn-warning" onclick="openPasswordModal()">비밀번호 변경</button>
-		                                            </div>
-		                                        </div>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="addr" class="col-sm-3 col-form-label info-label">주소</label>
-		                                    <div class="col-sm-9">
-		                                        <input type="text" class="form-control form-control-lg" id="addr" name="addr" value="${user.addr}" required>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group row">
-		                                    <label for="getAddr" class="col-sm-3 col-form-label info-label">상세주소</label>
-		                                    <div class="col-sm-9">
-		                                        <input type="text" class="form-control form-control-lg" id="getAddr" name="getAddr" value="${user.getAddr}" required>
-		                                    </div>
-		                                </div>
-		                                <div class="form-group text-center mt-4">
-		                                    <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn">정보 수정</button>
-		                                    <a class="btn btn-secondary btn-lg font-weight-medium auth-form-btn" href="#" role="button">취소</a>
-		                                </div>
-		                                <div class="form-group text-center mt-4">
-		                                    <button type="button" class="btn btn-danger btn-lg font-weight-medium auth-form-btn" onclick="openDeleteModal()">회원 탈퇴</button>
-		                                </div>
-		                            </form>
-		                        </div>
-		                    </div>
-		                </div>
-		            </div>
-		            <!-- content-wrapper ends -->
-		        </div>
-		        <!-- page-body-wrapper ends -->
-		    </div>
-          </div>
-      </div>
+            <div class="container-scroller">
+                <div class="container-fluid page-body-wrapper full-page-wrapper">
+                    <div class="content-wrapper d-flex align-items-center auth px-0">
+                        <div class="row w-100 mx-0">
+                            <div class="col-lg-8 mx-auto">
+                                <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                                    <h4 class="mb-4">회원 정보 수정</h4>
+                                    <form id="updateForm" class="pt-3 form-horizontal" method="POST" action="/user/update">
+                                        <input type="hidden" name="userId" id="userId" value="${viewedUser.userId}">
+                                        <div class="form-group row">
+                                            <label for="userName" class="col-sm-3 col-form-label info-label">이름</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control form-control-lg" id="userName" name="userName" value="${viewedUser.userName}" required readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="nickname" class="col-sm-3 col-form-label info-label">닉네임</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control form-control-lg" id="nickname" name="nickname" value="${viewedUser.nickname}" required readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="email" class="col-sm-3 col-form-label info-label">이메일</label>
+                                            <div class="col-sm-9">
+                                                <input type="email" class="form-control form-control-lg" id="email" name="email" value="${viewedUser.email}" required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="phoneNum" class="col-sm-3 col-form-label info-label">휴대전화번호</label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control form-control-lg" id="phoneNum" name="phoneNum" value="${viewedUser.phoneNum}" required readonly>
+                                                    <div class="input-group-append" >
+                                                        <button type="button" class="btn btn-primary" onclick="openPhoneNumberModal()" style="background-color:#25ad44;">핸드폰 번호 변경</button>
+                                                    </div>
+                                                </div>
+                                                <span id="verificationCodeMsg" class="help-block"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="password" class="col-sm-3 col-form-label info-label">비밀번호</label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control form-control-lg" id="password" name="password" value="비밀번호를 변경하시려면 비밀번호 변경버튼을 누르세요." readonly>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-warning" onclick="openPasswordModal()">비밀번호 변경</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="addr" class="col-sm-3 col-form-label info-label">주소</label>
+                                            <div class="col-sm-9">
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control form-control-lg" id="addr" name="addr" value="${viewedUser.addr}" required readonly>
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-primary" id="find-postcode" onclick="execDaumPostcode()" style="background-color:#6610f2;">주소 찾기</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label for="getAddr" class="col-sm-3 col-form-label info-label">상세주소</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control form-control-lg" id="getAddr" name="getAddr" value="${viewedUser.getAddr}" required>
+                                            </div>
+                                        </div>
+                                        <c:choose>
+										    <c:when test="${sessionScope.isAdmin}">
+										        <div class="form-group text-center mt-4">
+										            <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn" style="background-color:#103ff2;">정보 수정</button>
+										            <a class="btn btn-secondary btn-lg font-weight-medium auth-form-btn" href="/user/listUser" role="button">취소</a>
+										        </div>
+										    </c:when>
+										    <c:otherwise>
+										        <div class="form-group text-center user">
+								                    <button type="submit" class="btn btn-primary btn-lg font-weight-medium auth-form-btn" style="background-color:#103ff2;">정보 수정</button>
+								                    <a class="btn btn-secondary btn-lg font-weight-medium auth-form-btn" href="/user/myInfo" role="button">취소</a>
+										        </div>
+										    </c:otherwise>
+										</c:choose>
+
+                                        <div class="form-group text-center mt-4">
+                                            <button type="button" class="btn btn-danger btn-lg font-weight-medium auth-form-btn" onclick="openDeleteModal()">회원 탈퇴</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- content-wrapper ends -->
+                </div>
+                <!-- page-body-wrapper ends -->
+            </div>
+        </div>
+    </div>
     <!-- 핸드폰 번호 변경 모달 창 -->
     <div id="phoneNumberModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="phoneNumberModalLabel">
         <div class="modal-dialog" role="document">
@@ -165,7 +218,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="passwordForm">
-                        <input type="hidden" name="userId" value="${user.userId}" />
+                        <input type="hidden" name="userId" value="${viewedUser.userId}" />
                         <div class="form-group">
                             <label for="newPasswordModal">새 비밀번호</label>
                             <input type="password" id="newPasswordModal" name="newPassword" class="form-control" required />
@@ -210,6 +263,8 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="../../vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+    
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <!-- End plugin js for this page -->
@@ -219,6 +274,47 @@
     <!-- FOOTER -->
 
     <script type="text/javascript">
+    
+	    function execDaumPostcode() {
+	        new daum.Postcode({
+	          oncomplete: function (data) {
+	            var fullAddr = ''; 
+	            var extraAddr = ''; 
+	
+	            if (data.userSelectedType === 'R') { 
+	              fullAddr = data.roadAddress;
+	            } else { 
+	              fullAddr = data.jibunAddress;
+	            }
+	
+	            if (data.userSelectedType === 'R') {
+	              if (data.bname !== '') {
+	                extraAddr += data.bname;
+	              }
+	              if (data.buildingName !== '') {
+	                extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+	              }
+	              fullAddr += (extraAddr !== '' ? ' (' + extraAddr + ')' : '');
+	            }
+	
+	            document.getElementById('addr').value = fullAddr;
+	            document.getElementById('getAddr').focus();
+	          },
+	          theme: {
+	            bgColor: "#ECECEC",
+	            searchBgColor: "#0B65C8",
+	            contentBgColor: "#FFFFFF",
+	            pageBgColor: "#FAFAFA",
+	            textColor: "#333333",
+	            queryTextColor: "#FFFFFF",
+	            postcodeTextColor: "#FA4256",
+	            emphTextColor: "#008BD3",
+	            outlineColor: "#E0E0E0"
+	          }
+	        }).open();
+	      }
+    
+    	
         function openPhoneNumberModal() {
             $('#phoneNumberModal').modal('show');
         }

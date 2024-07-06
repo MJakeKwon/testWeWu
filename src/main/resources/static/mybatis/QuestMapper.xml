@@ -3,7 +3,7 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 		
-<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+<mapper namespace = "life.wewu.web.service.plant.QuestDao">
 
 	<resultMap id="questSelectMap" type="quest">
 		<result property="questNo" 			column="quest_no" 			jdbcType="INTEGER"/>
@@ -24,27 +24,44 @@
 	
 
 	<!-- UPDATE QUTES -->
-	<update	id="updateQuest" parameterType ="quest" >
+	<update	id="updateQuest" parameterType ="map" >
 	   	UPDATE quest
 	   	<set>
+	   		<if test = "questContents != null and questContents != ''"> 
 	   		quest_contents = #{questContents},
-			quest_target = #{questTarget},
-			quest_target_cnt = #{questTargetCnt},
-			quest_reward = #{questReward}
+	   		</if>
+	   		<if test = "questTargetCnt != null and questTargetCnt != ''"> 
+	   		quest_target_cnt = #{questTargetCnt},
+	   		</if> 
+	   		<if test = "questTarget != null and questTarget != ''"> 
+	   		quest_target = #{questTarget},
+	   		</if> 
+	   		<if test = "questReward != null and questReward != ''"> 
+	   		quest_reward = #{questReward},
+	   		</if> 
+	   		quest_no = #{questNo}
 	   	</set>
-	   	WHERE quest_no = #{questNo}
+	   	<where>
+	   	quest_no = #{questNo}
+	   	</where>
 	 </update>
 	 
 	 <!-- GET QUESTLIST -->
-	<select  id="getQuest"  parameterType="quest" resultMap="questSelectMap">
+	<select  id="getQuest"  parameterType="int" resultMap="questSelectMap">
 	  	SELECT * FROM quest	
 	  	WHERE quest_no = #{questNo} 
+	</select>
+	
+	<!-- GET QUESTLIST -->
+	<select  id="getQuestByUser"  parameterType="String" resultMap="questSelectMap">
+	  	SELECT * FROM quest	
+	  	WHERE nickname = #{nickname} 
 	</select>
 
 	<!-- GET QUESTLIST -->
 	<select  id="getQuestList"  parameterType="search" resultMap="questSelectMap">
 	  	SELECT * FROM quest	
-	  	order by quest_no
+	  	order by quest_state DESC;
 	</select>
 	
 	<update id = "completeQuest" parameterType ="quest">

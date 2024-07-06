@@ -7,11 +7,16 @@ package life.wewu.web.domain.pay;
 
 import java.sql.Date;
 
+import life.wewu.web.domain.group.GroupAcle;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Builder
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pay {
 	private int payNo; //결제 번호
     private String buyerNickname; //결제자 닉네임&아이템 구매자 사용자 닉네임

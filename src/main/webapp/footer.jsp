@@ -8,6 +8,9 @@
 <head>
 <!-- 필요한 메타 데이터 및 CSS/JS 링크 포함 -->
 </head>
+<style>
+
+</style>
 <body>
 
 	<!-- partial:partials/_footer.html -->

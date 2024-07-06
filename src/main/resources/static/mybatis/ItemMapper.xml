@@ -33,18 +33,18 @@
 		WHERE item_no = #{value}
 	</select>
 	
-	<!-- SQL : SELECT 아이템 목록조회-->
+	<!-- SQL : SELECT 아이템 목록조회. 밑에 if 조건에 해당 안 되면, select~where N까지만 돎. 그래서 search 안 한 기본 상태는 그냥 item 중에서 item flag N인걸 다 보여줌. -->
 	<select id="getItemList" parameterType="search" resultMap="itemSelectMap">
 		SELECT
 		*
 		FROM item
 		WHERE item_flag = 'N'
-		<if test='searchCondition != null'>
+		<if test='searchCondition != null and searchCondition !=""'>
         	AND item_category = #{searchCondition}
-        	<if test='searchKeyword != null and searchKeyword != ""'>
-        	AND item_name LIKE CONCAT('%', #{searchKeyword}, '%')
-        	</if>
      	</if>
+     	<if test='searchKeyword != null and searchKeyword != ""'>
+        	AND item_name LIKE CONCAT('%', #{searchKeyword}, '%')
+        </if>                                                                                                                                                                                                                                                              
 	</select>
 	
 	<!-- SQL : UPDATE 판매 아이템 정보 수정-->
@@ -79,7 +79,7 @@
 	 </update>
 	 -->
 		
-	<!-- SQL : SELECT 아이템 검색 결과-->
+	<!-- 	
 	  	<select id="getItemSearch"  parameterType="search"  resultMap="itemSelectMap">
 	  	    SELECT 
 				*
@@ -96,10 +96,10 @@
     		</if>
 		</select>
 	
+	 -->
 	
 	
-	
-	<!-- 
+	<!-- 이미 getItemList에 동일한 기능을 하는 것이 있으므로 얘는 필요 없음. 
 	<select  id="getItemSearch"  parameterType="search"	resultMap="itemSelectMap">
 	  	SELECT *
 	  	FROM (	SELECT inner_table.* , ROWNUM AS row_seq

@@ -1,6 +1,10 @@
 package life.wewu.web.controller.report;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import life.wewu.web.common.Search;
 import life.wewu.web.domain.group.GroupAcle;
 import life.wewu.web.domain.report.Report;
+import life.wewu.web.domain.user.User;
 import life.wewu.web.service.group.GroupService;
 import life.wewu.web.service.report.ReportService;
 
@@ -62,27 +67,42 @@ public class ReportController {
 	}
 	
 	@RequestMapping(value="getReport",method = RequestMethod.POST)
-	public ModelAndView getReport(@RequestParam("reportNo") int reportNo) throws Exception 
+	public ModelAndView getReport(@RequestParam("reportNo") int reportNo,@RequestParam("groupNo") int groupNo,HttpSession session) throws Exception 
 	{
 		System.out.println(":: /report/getReport ::");
+
+		User user = (User)session.getAttribute("user");
 		// Business logic 수행
-		Report report = reportService.getReport(reportNo);
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("groupNo", groupNo);
+		map.put("memberNickName",user.getNickname());
 		
+		Report report = reportService.getReport(reportNo);
+		System.out.println(report);
 		ModelAndView model = new ModelAndView("forward:/report/getReport.jsp");
+		model.addObject("group", groupService.getGroup(groupNo));
+		model.addObject("groupMember", groupService.getMemberGroupForNick(map));
 		model.addObject("report", report);
 		
 		return model;
 	}
 	
 	@RequestMapping(value="getReportList",method = RequestMethod.POST)
-	public ModelAndView getReportList(Search search) throws Exception 
+	public ModelAndView getReportList(@RequestParam("groupNo") int groupNo, HttpSession session, Search search) throws Exception 
 	{
 		System.out.println(":: /report/getReportList ::");
+		
+		User user = (User)session.getAttribute("user");
 		// Business logic 수행
-		List<Report> list = reportService.getReportList(search);
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("groupNo", groupNo);
+		map.put("memberNickName",user.getNickname());
+		
+		// Business logic 수행
 		
 		ModelAndView model = new ModelAndView("forward:/report/getReportList.jsp");
-		model.addObject("list", list);
+		model.addObject("group", groupService.getGroup(groupNo));
+		model.addObject("groupMember", groupService.getMemberGroupForNick(map));
 		
 		return model;
 	}

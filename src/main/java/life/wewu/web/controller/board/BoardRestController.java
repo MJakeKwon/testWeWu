@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import life.wewu.web.common.Search;
 import life.wewu.web.domain.board.Board;
+import life.wewu.web.domain.board.BoardFile;
 import life.wewu.web.domain.board.Bookmark;
 import life.wewu.web.domain.board.Comment;
 import life.wewu.web.domain.board.Question;
@@ -44,7 +45,7 @@ public class BoardRestController {
 		String flag="";
 		
 		try {
-			System.out.println(":::::::::;;"+bookmark.getBoardNo());
+			System.out.println(":::::::::;;"+bookmark.getBoardNo());			
 			boardService.addBookmark(bookmark);
 			//System.out.println("1");
 			boardService.updateBookmarkCntUp(bookmark.getBoardNo());
@@ -87,10 +88,12 @@ public class BoardRestController {
 		System.out.println("listBookmark");
 		
 		//String sessionString = ((User)session.getAttribute("nickname")).getNickname();
-		int boardType = (int)rslt.get("baordType");
+		int boardType = (int)rslt.get("boardType");
 		
 		return boardService.getBookmarkList(rslt);
 	}
+	
+
 	
 	/*
 	 * Comment
@@ -137,6 +140,7 @@ public class BoardRestController {
 		return boardService.getCommentListByNic(((User)session.getAttribute("nickname")).getNickname());		
 	}
 	
+	
 	@PostMapping(value = "getCommentListByBoard")
 	public List<Comment> getCommentListByBoard(@RequestBody Map<String, Object> rslt) throws Exception{
 		
@@ -147,5 +151,31 @@ public class BoardRestController {
 		// Business logic 수행
 		
 		return boardService.getCommentListByBoard(boardNo);
+	}
+	
+	/*
+	 * Board
+	 */
+	
+	@PostMapping(value="listBoardMain")
+	public List<Board> listBoardMain(@RequestBody Map<String,Object> rslt) throws Exception{
+		System.out.println("@@Restcontroller :: listBoardMain");
+		
+		Search search = new Search();
+		search.setSearchCondition("");
+		search.setSearchKeyword("");
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("boardType", 1);
+		map.put("search", search);
+		map.put("offset", 0);
+		
+		
+		List<Board> board = boardService.getBoardList(map);
+		
+		System.out.println("::::::::::board: "+board);
+		
+		
+		return boardService.getBoardList(map);		
 	}
 }

@@ -9,11 +9,19 @@
 		<result property="plantNo" 			column="plant_no" 			jdbcType="INTEGER"/>
 		<result property="plantName"		column="plant_name" 		jdbcType="VARCHAR" />
 		<result property="plantLevl.plantLevlNo"	column="plant_levl_no" 		jdbcType="VARCHAR" />
+		<association property="plantLevl" javaType="plantLevl">
+            <id property="plantLevlNo" column="plant_levl_no" jdbcType="INTEGER"/>
+            <result property="plantLevl" column="plant_levl" jdbcType="VARCHAR"/>
+            <result property="plantMaxExp" column="plant_max_exp" jdbcType="INTEGER"/>
+            <result property="plantMinExp" column="plant_min_exp" jdbcType="INTEGER"/>
+            <result property="plantFinalLevl" column="plant_final_levl" jdbcType="VARCHAR"/>
+            <result property="levlImg" column="levl_img" jdbcType="VARCHAR"/>
+        </association>
 	</resultMap>
 	
 	<!-- GET RANDOM PLANT -->
 	<select id="selectRandomPlant"  resultMap="PlantSelectMap">
-		SELECT p.plant_no as plant_no , le.plant_levl_no as plant_levl_no
+		SELECT p.plant_no, le.plant_levl_no ,le.levl_img 
 		from plant_levl le, plant p
 		WHERE le.plant_levl = '새싹'
 		ORDER BY RAND()
@@ -21,27 +29,43 @@
 	</select>
 	
 	<!-- ADD PLANT -->
-	<insert id="addPlantName" parameterType="plant" useGeneratedKeys="true" keyProperty="plantNo">
-        INSERT INTO plant (plant_name)
-        VALUES (#{plantName})
-    </insert>
-
+	<insert id="addPlantName" parameterType="plant">
+		<!-- Plant 테이블에 데이터 삽입 -->
+		INSERT INTO plant (plant_name)
+		VALUES (#{plantName});
+		
+		<selectKey resultType="int" keyProperty="plantNo" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+	</insert>
 	
+	<!-- ADD PLANT LEVL -->
+	<insert id="addPlantLevl" parameterType="plantLevl">
+		INSERT INTO plant_levl (plant_no, plant_levl, plant_min_exp, plant_max_exp, plant_final_levl, levl_img)
+		VALUES (#{plantNo}, #{plantLevl}, #{plantMinExp}, #{plantMaxExp}, #{plantFinalLevl}, #{levlImg});
+	</insert>
+		
 	<!-- UPDATE PLANT -->
-	<update id="updatePlant" parameterType="plant">
+	
+	<update id="updatePlantName" parameterType="plant">
 		UPDATE plant
 		<set>
-			plant_name = #{plantName}
-		</set>
-			WHERE plant_no = #{plantNo}
+			<if test = "plantName != null and plantName != '' ">
+			plant_name = #{plantName},
+			</if>
+			plant_no = #{plantNo}
+		</set>	
+		<where>
+			plant_no = #{plantNo}
+		</where>
 	</update>
 	
 
 	<!-- DELETE PLANT -->
-	<delete id="deletePlant">
-		DELETE FROM plant
-		WHERE plant_no = #{plant_no}
-	</delete>
+	<delete id="deletePlant" parameterType="int">
+        DELETE FROM plant 
+        WHERE plant_no = #{plantNo}
+    </delete>
 	
 
 	<select id = "getPlant" parameterType="int" resultMap="PlantSelectMap">
@@ -49,12 +73,11 @@
 		WHERE plant_no = #{value}
 	</select>
 	
-	<select id="getPlantList" parameterType="search" resultMap="PlantSelectMap">
-		SELECT p.*, l.*
+	<select id="getPlantList" parameterType="map" resultMap="PlantSelectMap">
+		SELECT p.plant_no, p.plant_name, l.plant_levl_no, l.plant_levl, l.plant_max_exp, l.plant_min_exp, l.plant_final_levl, l.levl_img
 		FROM plant p , plant_levl l
 		WHERE p.plant_no = l.plant_no
 		ORDER BY p.plant_no
-
 	</select>
 	
 	<select id="donatePlant" parameterType="int" resultMap="PlantSelectMap">
@@ -62,5 +85,6 @@
 		WHERE plant_no = #{plantNo}
 	</select>
 	
+
 </mapper>
 			

@@ -23,7 +23,7 @@ public class Board {
 	private int boardType; 			//FK 게시판 종류
 	private String nickName;		//FK 사용자 닉네임
 	private String title; 			//게시판 제목
-//	private List<BoardFile> fileNo ;//게시판 첨부 파일명//
+	private String fileName ; 		//게시판 첨부 파일명//
 	private int userGroupNo;
 	private String contents;		//게시판 내용
 	private Date regDate;			//등록 날짜

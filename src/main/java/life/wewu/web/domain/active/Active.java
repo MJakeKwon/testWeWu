@@ -18,6 +18,7 @@ public class Active {
 	//dd
 	private int activeNo;//active�� ��ȣ
 	private int groupNo;//��� �׷��� Ȱ������ group ��ȣ
+	private String groupName;//모임을 등록한 모임 이름
 	private String activeName;//Ȱ�� �̸�
 	private Date activeStartDate;//Ȱ�� ������
 	private Date activeEndDate;//Ȱ�� ������

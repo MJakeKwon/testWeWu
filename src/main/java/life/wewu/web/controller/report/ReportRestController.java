@@ -47,7 +47,7 @@ public class ReportRestController {
 		System.out.println(":: /app/report/getReportList ::");
 		// Business logic 수행
 		List<Report> list = reportService.getReportList(search);
-		
+		System.out.println(list);
 		return list;
 	}
 	

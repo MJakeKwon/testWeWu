@@ -1,8 +1,11 @@
 package life.wewu.web.controller.active;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +22,8 @@ import life.wewu.web.common.Search;
 import life.wewu.web.domain.active.Active;
 import life.wewu.web.domain.active.Local;
 import life.wewu.web.domain.group.Group;
+import life.wewu.web.domain.group.GroupMember;
+import life.wewu.web.domain.user.User;
 import life.wewu.web.service.active.ActiveService;
 import life.wewu.web.service.group.GroupService;
 import life.wewu.web.service.local.LocalService;
@@ -46,7 +51,6 @@ public class ActiveRestController {
 	public List<Active> getActiveList(@RequestBody Search search) throws Exception {
 		
 		System.out.println("getActiveList");
-		System.out.println("");
 		
 		return activeService.getActiveList(search);
 		
@@ -72,15 +76,92 @@ public class ActiveRestController {
 		return result;
 	}
 	
+	@PostMapping(value = "listAllGroupActive/{groupNo}")
+	public List<Active> getAllGroupActiveList(@PathVariable int groupNo) throws Exception {
+		
+		System.out.println("listAllGroupActive");
+		
+		return activeService.getGroupActiveAllList(groupNo);
+		
+	}
+	
 	//rest group ������, �˻�
 	@PostMapping(value = "listGroup")
-	public List<Group> getGroupList(@RequestBody Search search) throws Exception {
+	public Map<String, Object> getGroupList(@RequestBody Search search, HttpSession session) throws Exception {
 		
 		System.out.println("getGroupList");
 		
-		search.setSearchCondition("T");
+		User user = (User)session.getAttribute("user");
 		
-		return groupService.getGroupList(search);
+		search.setSearchCondition("search");
+		search.setCurrentPage((search.getCurrentPage() - 1) * 10);		
+		List<Group> groupList = groupService.getGroupList(search);
+		List<GroupMember> memberList = new ArrayList<>();
+		
+		System.out.println("::: "+groupList.size());
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(user != null) {
+			map.put("memberNickName", user.getNickname());
+		}
+		
+		System.out.println("::: "+map);
+		
+		for( Group group : groupList ) {
+			
+			if(user == null) {
+				memberList.add(new GroupMember());
+				System.out.println(":::::check");
+				continue;
+			}
+			
+			map.put("groupNo", group.getGroupNo());
+			
+			System.out.println("::: "+map);
+			
+			System.out.println("::::::"+groupService.getMemberGroupForNick(map));
+			
+			GroupMember groupMember = groupService.getMemberGroupForNick(map);
+			memberList.add(groupMember);
+			
+		}
+		
+		boolean isLast = false;
+		
+		int groupListCnt = groupService.getGroupListCnt(search);
+		
+		if(groupListCnt == 0) {
+			isLast = true;
+		}else {
+		
+			int lastPage = (groupListCnt / 10) + 1;
+			
+			if(groupListCnt % 10 == 0) {
+				lastPage -= 1;
+			}
+			
+			System.out.println("::: "+isLast);
+			
+			if(search.getCurrentPage() != 0) {
+				search.setCurrentPage(search.getCurrentPage() / 10 + 1);
+			}else {
+				search.setCurrentPage(1);
+			}
+			
+			if(search.getCurrentPage() == lastPage) {
+				isLast = true;
+			}
+		
+		}
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("groupList", groupList);
+		result.put("memberList", memberList);
+		result.put("isLast", isLast);
+		
+		System.out.println("::: "+result);
+		
+		return result;
 		
 	}
 	

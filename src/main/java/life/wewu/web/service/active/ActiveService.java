@@ -21,6 +21,8 @@ public interface ActiveService {
 	
 	public List<Active> getGroupActiveList(Map<String, Object> map); //���� Ȱ�� ���
 	
+	public List<Active> getGroupActiveAllList(int groupNo);
+	
 	public boolean isLastPage(Map<String, Object> map);
 	
 }

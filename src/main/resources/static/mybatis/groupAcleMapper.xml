@@ -13,6 +13,15 @@
 		<result property="acleContents" column="contents"   jdbcType="VARCHAR"/>
 		<result property="wrteDate"   	column="reg_date"   jdbcType="DATE"/>
 	</resultMap>
+	
+	<!-- comment 테이블 -->
+	<resultMap type="comment" id="commentSelectMap">
+		<result property="commentNo" 		column="comment_no" 		jdbcType="NUMERIC"/>
+		<result property="boardNo" 			column="board_no" 			jdbcType="NUMERIC"/>
+		<result property="commentNickName" 	column="comment_nickname" 	jdbcType="VARCHAR"/>
+		<result property="commentContents" 	column="comment_contents" 	jdbcType="VARCHAR"/>
+		<result property="commentDate" 		column="comment_date" 		jdbcType="DATE"/>
+	</resultMap>
   	
 	<!-- INSERT 매핑구문 (insert SQL 등록) :: insert element -->
   	<insert id="addGroupAcle" parameterType="groupAcle" useGeneratedKeys="true" keyProperty="boardNo" keyColumn="board_no">
@@ -72,11 +81,12 @@
   				and member_no = #{search.searchCondition}
   			</if>
   		</where>
-  	</select>
+  		LIMIT #{search.currentPage}, 10
+  	</select>                                                                                                                                                                                                                                                                                                                                                                   
   	<!-- SELECT 매핑구문 (select SQL 등록) :: select element --> 
   	
   	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
-  	<select id="getGroupAcleCnt" parameterType="MAP" resultType="INT">
+  	<select id="getGroupAcleListCnt" parameterType="MAP" resultType="INT">
   		SELECT
   			count(*)
   		FROM board
@@ -129,5 +139,117 @@
   		</where>
   	</delete>
   	<!-- DELETE 매핑구문 (delete SQL 등록) :: delete element --> 
-	
+  	
+  	<select id="groupAcleCnt" parameterType="INT" resultType="INT">
+  		SELECT 
+  		COUNT(*) 
+  		FROM board 
+  		WHERE 
+  		type_no IN (
+  						SELECT 
+  							type_no 
+  						FROM 
+  							board_type 
+  						WHERE 
+  							group_no = ${groupNo}
+  					)
+  	</select>
+  	
+  	<select id="memberAcleList" parameterType="MAP" resultMap="groupAcleSelectMap">
+  		SELECT 
+  			board_no,
+  			type_no, 
+  			member_no, 
+  			nickname, 
+  			title,
+  			contents, 
+  			reg_date
+  		FROM board 
+  		WHERE 
+  		type_no IN (
+  						SELECT 
+  							type_no 
+  						FROM 
+  							board_type 
+  						WHERE 
+  							group_no = ${groupNo}
+  					)
+  		AND 
+  			nickname = '${nickname}'
+  		LIMIT #{search.currentPage}, 5
+  	</select>
+  	
+  	<select id="memberAcleListCnt" parameterType="MAP" resultType="INT">
+  		SELECT 
+  			COUNT(*)
+  		FROM board 
+  		WHERE 
+  		type_no IN (
+  						SELECT 
+  							type_no 
+  						FROM 
+  							board_type 
+  						WHERE 
+  							group_no = ${groupNo}
+  					)
+  		AND 
+  			nickname = '${nickname}'
+  		
+  	</select>
+  	
+  	<select id="memberCommentList" parameterType="MAP" resultMap="commentSelectMap">
+  	
+  		SELECT 
+  			comment_no,
+  			board_no,
+  			comment_nickname, 
+  			comment_contents, 
+  			comment_date 
+  		FROM comment 
+  		WHERE 
+  		board_no IN (
+  						SELECT 
+  							board_no 
+  						FROM 
+  							board 
+  						WHERE 
+  							type_no IN  (
+  											SELECT
+  												type_no
+  											FROM
+  												board_type
+  											WHERE
+  												group_no = #{groupNo}
+  										)
+  					)
+  		AND 
+  			comment_nickname = '${nickname}'
+  		LIMIT #{search.currentPage}, 5
+  	</select>
+  	
+	<select id="memberCommentListCnt" parameterType="MAP" resultType="INT">
+  	
+  		SELECT 
+  			COUNT(*)
+  		FROM comment 
+  		WHERE 
+  		board_no IN (
+  						SELECT 
+  							board_no 
+  						FROM 
+  							board 
+  						WHERE 
+  							type_no IN  (
+  											SELECT
+  												type_no
+  											FROM
+  												board_type
+  											WHERE
+  												group_no = #{groupNo}
+  										)
+  					)
+  		AND 
+  			comment_nickname = '${nickname}'
+  		
+  	</select>
 </mapper>

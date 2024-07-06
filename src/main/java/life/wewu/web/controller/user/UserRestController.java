@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +29,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import life.wewu.web.domain.plant.MyPlant;
+import life.wewu.web.domain.plant.PlantLevl;
 import life.wewu.web.domain.user.User;
+import life.wewu.web.service.plant.PlantService;
 import life.wewu.web.service.user.SmsService;
 import life.wewu.web.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -45,33 +50,104 @@ public class UserRestController {
     @Qualifier("smsService")
     private SmsService smsService;
     
+    @Autowired
+    @Qualifier("plantServiceImpl")
+    private PlantService plantService;
+    
     @Value("${naver.client.id}")
     private String clientId;
 
     @Value("${naver.client.secret}")
     private String clientSecret;
     
+    @RequestMapping(value="/login", method=RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> login(@ModelAttribute("user") User user, HttpSession session, HttpServletRequest request) {
+        System.out.println("/user/login : POST");
+        Map<String, Object> response = new HashMap<>();
 
-        @PostMapping("/geocode")
-        @ResponseBody
-    public ResponseEntity<String> getGeocode(@RequestParam String address) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
-            headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+            int loginAttempts = session.getAttribute("loginAttempts") != null ? (int) session.getAttribute("loginAttempts") : 0;
+            if (loginAttempts >= 3) {
+                String captchaValue = request.getParameter("captcha");
+                String captchaKey = request.getParameter("captchaKey");
+                boolean isCaptchaValid = verifyCaptcha(captchaKey, captchaValue); // 캡차 검증 메서드
 
-            String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
-            String url = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + encodedAddress;
+                if (!isCaptchaValid) {
+                    System.out.println("캡차 인증 실패");
+                    response.put("success", false);
+                    response.put("error", "captcha_failed");
+                    return response;
+                }
+            }
 
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-            return response;
+            // 로그인 서비스 호출
+            User dbUser = userService.login(user);
+
+            if (dbUser != null) {
+                session.setAttribute("user", dbUser);
+                session.setAttribute("isAdmin", "1".equals(dbUser.getRole()));
+                session.setAttribute("userNickname", dbUser.getNickname()); // 사용자 닉네임 세션에 저장
+                session.removeAttribute("loginAttempts"); // 로그인 성공 시 로그인 시도 횟수 초기화
+                try {
+                	MyPlant myPlant = plantService.getMyPlant(dbUser.getNickname());
+                	PlantLevl plantLevl = plantService.getPlantLevl(myPlant.getPlantLevl().getPlantLevlNo());
+                    myPlant.setPlantLevl(plantLevl);
+                    session.setAttribute("myPlant", myPlant);
+                } catch (Exception e) {
+                    System.out.println("MyPlant 가져오기 중 예외 발생 : " + e.getMessage());
+                    e.printStackTrace();
+                }
+                System.out.println("로그인 성공: " + dbUser.getUserId());
+                response.put("success", true);
+            } else {
+                System.out.println("로그인 실패: 비밀번호 불일치 또는 사용자 없음");
+                session.setAttribute("loginAttempts", ++loginAttempts); // 로그인 실패 시 로그인 시도 횟수 증가
+                response.put("success", false);
+                response.put("error", "\n 아이디 또는 비밀번호가 틀렸습니다.");
+            }
+        } catch (IllegalArgumentException e) {
+            // 유효하지 않은 사용자 정보 예외 처리
+            System.out.println("유효하지 않은 사용자 정보: " + e.getMessage());
+            response.put("success", false);
+            response.put("error", "유효하지 않은 사용자입니다.");
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+            // 일반 예외 처리
+            System.out.println("로그인 중 예외 발생: " + e.getMessage());
+            response.put("success", false);
+            response.put("error", "로그인이 제한된 계정입니다");
         }
+        return response;
     }
+
+    // 캡차 검증 메서드
+    private boolean verifyCaptcha(String captchaKey, String captchaValue) {
+        // 캡차 검증 로직 추가 (예: 외부 API 호출)
+        // 성공 시 true 반환, 실패 시 false 반환
+        return true; // 예시로 성공 반환
+    }
+
+    
+//        @PostMapping("/geocode")
+//        @ResponseBody
+//    public ResponseEntity<String> getGeocode(@RequestParam String address) {
+//        try {
+//            RestTemplate restTemplate = new RestTemplate();
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.set("X-NCP-APIGW-API-KEY-ID", clientId);
+//            headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+//
+//            String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8.toString());
+//            String url = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + encodedAddress;
+//
+//            HttpEntity<String> entity = new HttpEntity<>(headers);
+//            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+//            return response;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+//        }
+//    }
 
     // 인증번호 발송 메소드
     @PostMapping("/send-verification-code")
@@ -81,71 +157,68 @@ public class UserRestController {
     }
 
     @PostMapping("/verify-code-userId")
-    public String verifyCodeUserId(@RequestParam String phoneNum,
-                             @RequestParam String code,
-                             @RequestParam String userName,
-                             Model model) throws Exception {
+    @ResponseBody
+    public Map<String, Object> verifyCodeUserId(@RequestParam String phoneNum,
+                                                @RequestParam String code,
+                                                @RequestParam String userName) throws Exception {
         System.out.println("verifyCodeUserId 호출됨");
         System.out.println("phoneNum:" + phoneNum);
         System.out.println("code:" + code);
         System.out.println("userName:" + userName);
 
+        Map<String, Object> response = new HashMap<>();
+
         boolean isVerified = userService.verifyCode(phoneNum, code);
         System.out.println("isVerified:" + isVerified);
+        response.put("isVerified", isVerified);
+
         if (isVerified) {
-            // 인증 성공: 아이디 보여주는 페이지로 리디렉션
+            // 인증 성공: 아이디를 찾아서 반환
             User user = userService.findUserId(phoneNum, userName);
             if (user != null) {
-                model.addAttribute("userId", user.getUserId());
-                return "user/findUserId";
+                response.put("userId", user.getUserId());
             } else {
-                model.addAttribute("phoneNum", phoneNum);
-                model.addAttribute("userName", userName);
-                model.addAttribute("error", "사용자를 찾을 수 없습니다.");
-                return "user/findUserIdView";
+                response.put("error", "사용자를 찾을 수 없습니다. 입력을 확인하세요.");
             }
         } else {
             // 인증 실패
-            model.addAttribute("phoneNum", phoneNum);
-            model.addAttribute("userName", userName);
-            model.addAttribute("error", "인증 실패");
-            return "user/findUserIdView";
+            response.put("error", "인증 실패");
         }
+
+        return response;
     }
-    
+
     @PostMapping("/verify-code-userPwd")
-    public String verifyCodeUserPwd(@RequestParam String phoneNum,
-                             @RequestParam String code,
-                             @RequestParam String userId,
-                             Model model) throws Exception {
+    @ResponseBody
+    public Map<String, Object> verifyCodeUserPwd(@RequestParam String phoneNum,
+                                                 @RequestParam String code,
+                                                 @RequestParam String userId) throws Exception {
         System.out.println("verifyCodePwd 호출됨");
         System.out.println("phoneNum:" + phoneNum);
         System.out.println("code:" + code);
         System.out.println("userId:" + userId);
 
+        Map<String, Object> response = new HashMap<>();
+
         boolean isVerified = userService.verifyCode(phoneNum, code);
         System.out.println("isVerified:" + isVerified);
+        response.put("isVerified", isVerified);
+
         if (isVerified) {
             // 인증 성공: 비밀번호 변경 페이지로 리디렉션
             User user = userService.findUserPwd(phoneNum, userId);
             if (user != null) {
-                model.addAttribute("userId", user.getUserId());
-                return "user/updatePwdView";
+                response.put("userId", user.getUserId());
             } else {
-                model.addAttribute("phoneNum", phoneNum);
-                model.addAttribute("userId", userId);
-                model.addAttribute("error", "사용자를 찾을 수 없습니다.");
-                return "user/findPwd";
+                response.put("error", "사용자를 찾을 수 없습니다. 입력을 확인하세요.");
             }
         } else {
             // 인증 실패
-            model.addAttribute("phoneNum", phoneNum);
-            model.addAttribute("userId", userId);
-            model.addAttribute("error", "인증 실패");
-            return "user/findPwd";
+            response.put("error", "인증 실패");
         }
+
+        return response;
     }
-    
     
     // 테스트용 인증번호 발송 메소드
 //    @PostMapping("/send-test-verification-code")
@@ -157,7 +230,7 @@ public class UserRestController {
     //아이디 닉네임 중복체크 검사
 	    @GetMapping("/checkId")
 	    public ResponseEntity<Map<String, Boolean>> checkId(@RequestParam String userId) {
-	        if (!userId.matches("^[a-zA-Z가-힣0-9]{2,10}$")) {
+	        if (!userId.matches("^[a-zA-Z가-힣0-9]{2,30}$")) {
 	            Map<String, Boolean> response = new HashMap<>();
 	            response.put("available", false);
 	            return ResponseEntity.ok(response);
@@ -176,7 +249,7 @@ public class UserRestController {
 	    @GetMapping("/checkNickname")
 	    public ResponseEntity<Map<String, Boolean>> checkNickname(@RequestParam String nickname) {
 	        Map<String, Boolean> response = new HashMap<>();
-	        if (!nickname.matches("^[a-zA-Z가-힣0-9]{2,10}$")) {
+	        if (!nickname.matches("^[a-zA-Z가-힣0-9]{2,20}$")) {
 	            response.put("available", false);
 	            return ResponseEntity.ok(response);
 	        }
@@ -195,8 +268,8 @@ public class UserRestController {
        //비밀번호 유효성검사, 같음 검사
         @PostMapping("/pwdCheck")
         public ResponseEntity<String> addUser(@RequestBody User user) {
-            if (!user.getUserPwd().matches("^(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{8,16}$")) {
-                return ResponseEntity.badRequest().body("비밀번호는 8자 이상 16자 이하, 영문과 특수기호를 포함해야 합니다.");
+            if (!user.getUserPwd().matches("^(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{8,30}$")) {
+                return ResponseEntity.badRequest().body("비밀번호는 8자 이상 30자 이하, 영문과 특수기호를 포함해야 합니다.");
             }
             if (!user.getUserPwd().equals(user.getUserPwd())) {
                 return ResponseEntity.badRequest().body("비밀번호가 일치하지 않습니다.");
@@ -211,7 +284,7 @@ public class UserRestController {
         
         @GetMapping("/validatePassword")
         public ResponseEntity<Map<String, Boolean>> validatePassword(@RequestParam String password) {
-            boolean isValid = password.matches("^(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{8,16}$");
+            boolean isValid = password.matches("^(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).{8,30}$");
             Map<String, Boolean> response = new HashMap<>();
             response.put("isValid", isValid);
             return ResponseEntity.ok(response);

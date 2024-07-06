@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import life.wewu.web.common.Search;
+import life.wewu.web.domain.board.Comment;
 import life.wewu.web.domain.group.Group;
 import life.wewu.web.domain.group.GroupAcle;
 import life.wewu.web.domain.group.GroupBoard;
@@ -33,6 +34,8 @@ public interface GroupService {
 	public String getGroupRanking(int GroupNo) throws Exception;
 	
 	public List<Group> getGroupList(Search search) throws Exception;
+	
+	public int getGroupListCnt(Search search) throws Exception;
 	
 	public List<Group> getGroupRankingList(Search search) throws Exception;
 	
@@ -63,6 +66,8 @@ public interface GroupService {
 	
 	public GroupMember updateScrab(GroupMember groupMember) throws Exception;
 	
+	public int groupMemberCnt(int groupNo) throws Exception;
+	
 	/* GroupBoard */
 	public GroupBoard addGroupBoard(GroupBoard groupBoard) throws Exception;
 	
@@ -85,6 +90,18 @@ public interface GroupService {
 	
 	public List<GroupAcle> getGroupAcleList(Map map) throws Exception;
 	
-	public int getGroupAcleCnt(Map map) throws Exception;
+	public int getGroupAcleListCnt(Map map) throws Exception;
+	
+	public int memberCommentListCnt(Map map) throws Exception;
+	
+	public int memberAcleListCnt(Map map) throws Exception;
+	
+	public List<GroupAcle> memberAcleList(Map map) throws Exception;
+	
+	public List<Comment> memberCommentList(Map map) throws Exception;
+	
+	public int groupAcleCnt(int groupNo) throws Exception;
+	
+	public void updateRole(String nickname) throws Exception;
 	
 }

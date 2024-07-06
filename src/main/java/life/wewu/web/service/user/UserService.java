@@ -23,8 +23,8 @@ public interface UserService {
     public void deleteUser(String userId) throws Exception;
     
 	//관리자가 유저 목록 확인
-	public Map<String , Object> getUserList(Search search) throws Exception;
-	
+	public Map<String , Object> getUserList(Search search, int startRowNum, int pageSize) throws Exception;
+
 	//관리자가 유저 상세보기
 	public User getUser(String userId) throws Exception;
     
@@ -58,4 +58,10 @@ public interface UserService {
     public User findUserPwd(String phoneNum, String userId) throws Exception;
 
 	public void updatePwd(User user) throws Exception;
+	
+	public void updateRole(User user) throws Exception;
+	
+	public void updateUserPoint(String userId, int currentPoint) throws Exception;
+
+
 }

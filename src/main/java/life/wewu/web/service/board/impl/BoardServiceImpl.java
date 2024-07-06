@@ -61,6 +61,7 @@ public class BoardServiceImpl implements BoardService{
 	public int getBookmarkCnt(int boardNo) throws Exception {
 		return boardDao.getBookmarkCnt(boardNo);
 	}
+	
 
 	/*
 	 * BoardDao
@@ -90,8 +91,8 @@ public class BoardServiceImpl implements BoardService{
 	}
 
 	@Override
-	public int getBoardFile(int boardNo) throws Exception {
-		return boardDao.getBoardFile(boardNo);
+	public List<BoardFile> getBoardFile(Map map) throws Exception {
+		return boardDao.getBoardFile(map);
 	}
 
 	/*
@@ -168,7 +169,31 @@ public class BoardServiceImpl implements BoardService{
 
 	@Override//
 	public List<Board> getBoardList(Map map) throws Exception {
-		return boardDao.getBoardList(map);
+		List<Board> boardList = boardDao.getBoardList(map);
+		
+		
+		
+		for(Board board : boardList) {
+			
+			map.put("boardNo", board.getBoardNo());
+			
+			System.out.println(":::::BoardServiceImpl map :"+ map);
+			
+			Bookmark bookmark = boardDao.getBookmark(map);
+			//map에는 nickname(컨트롤러에서), boardNo
+			
+			System.out.println(":::::::::::BoardServiceImpl bookmark: "+bookmark);
+			
+			if(bookmark != null) {
+				board.setBookmarkFlag(true);
+			}else {
+				board.setBookmarkFlag(false);
+			}
+			
+			map.remove("boardNo");
+		}
+		
+		return boardList;
 	}
 
 	/*
@@ -176,7 +201,7 @@ public class BoardServiceImpl implements BoardService{
 	 */
 	
 	@Override//
-	public void addDonation(Donation donation) throws Exception {
+ 	public void addDonation(Donation donation) throws Exception {
 		donationDao.addDonation(donation);
 		
 	}
@@ -267,5 +292,13 @@ public class BoardServiceImpl implements BoardService{
 	public void updateBookmarkCntDown(int boardNo) throws Exception {
 		boardDao.updateBookmarkCntDown(boardNo);
 	}
+
+	@Override
+	public int getTotalCountQ(Map<String, Object> map) throws Exception {
+		
+		return questionDao.getTotalCountQ(map);
+	}
+	
+	
 	
 }

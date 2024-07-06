@@ -21,5 +21,7 @@ public interface QuestionDao {
 	public Question getQuestionById(int questionNo) throws Exception;
 	
 	public List<Question> getQuestionList(Map map) throws Exception;
+	
+	public int getTotalCountQ(Map map)throws Exception;
 
 }

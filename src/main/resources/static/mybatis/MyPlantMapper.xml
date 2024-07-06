@@ -3,9 +3,11 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 		
-<mapper namespace = "life.wewu.web.service.plant.PlantDao">
+<mapper namespace = "life.wewu.web.service.plant.MyPlantDao">
 	
 	<resultMap id="myPlantSelectMap" type="myPlant" >
+		<result property="plantNo" 				column="plantNo" 			jdbcType="INTEGER"/>	
+		<result property="nickname" 			column="nickname" 			jdbcType="INTEGER"/>
 		<result property="myPlantNo" 			column="my_plant_no" 		jdbcType="INTEGER"/>
 		<result property="myPlantState"		 	column="my_plant_state" 	jdbcType="VARCHAR" />
 		<result property="myPlantName" 		  	column="my_plant_name" 		jdbcType="VARCHAR" />
@@ -22,35 +24,76 @@
 	
 		
 	<!--  ADD RANDOMPLANT -->
-	<insert id="addRandomPlant" parameterType="myPlant">
+	<insert id="addMyPlant" parameterType="myPlant">
 		INSERT INTO my_plant (my_plant_state,my_plant_name,my_plant_exp,plant_start_date,nickname,plant_no)
-		VALUE ('Y',#{myPlantName},0,now(),#{nickname},#{plant.plantNo})
+		VALUE ('Y',#{myPlantName},1,now(),#{nickname},#{plantNo})
 	</insert>
 
-	<select id ="getMyPlant" parameterType="int" resultMap="myPlantSelectMap">
+	<select id ="getMyPlant" parameterType="string" resultMap="myPlantSelectMap">
 		SELECT 
-			m.*,le.plant_levl_no
+			m.*,le.*
     	FROM 
     		my_plant m , plant_levl le
     	WHERE m.plant_no = le.plant_no	
-		AND my_plant_no = #{myPlantNo}
-		AND m.my_plant_exp between le.plant_min_exp and le.plant_max_exp;
+		AND nickname = #{nickname}
+		AND m.my_plant_exp between le.plant_min_exp and le.plant_max_exp
+		AND m.my_plant_state = 'Y'
+		LIMIT 1;
 	</select>
 	
 	<!-- GET MYPLANTliST -->
 	<select id="getMyPlantList" parameterType="map" resultMap="myPlantSelectMap" >
+        SELECT 
+            m.my_plant_no,
+            m.nickname,
+            m.plant_no,
+            m.my_plant_state,
+            MAX(m.my_plant_exp) AS my_plant_exp,
+            MIN(m.plant_start_date) AS plant_start_date,
+            MAX(m.plant_end_date) AS plant_end_date,
+            m.my_plant_name,
+            GROUP_CONCAT(le.plant_levl_no) AS plant_levl_no_list
+        FROM 
+            my_plant m , plant_levl le
+        WHERE
+        	 m.plant_no = le.plant_no
+        AND 
+            m.nickname = #{nickname} 
+        <if test="search.searchCondition == 'current'">
+            AND m.my_plant_state = 'Y'
+        </if>
+        <if test="search.searchCondition == 'past'">
+            AND m.my_plant_state = 'N'
+        </if>
+        GROUP BY 
+            m.my_plant_no, m.nickname, m.plant_no, m.my_plant_state, m.my_plant_name
+        <if test="search.searchKeyword == 'latest'">
+            ORDER BY MAX(m.plant_end_date) DESC
+        </if>
+        <if test="search.searchKeyword == 'oldest'">
+            ORDER BY MAX(m.plant_end_date) ASC
+        </if>
+        <if test="search.searchKeyword == 'highest'">
+            ORDER BY SUM(m.my_plant_exp) DESC
+        </if>
+        <if test="search.searchKeyword == 'lowest'">
+            ORDER BY SUM(m.my_plant_exp) ASC
+        </if>
+        <if test="search.searchKeyword != 'latest' and search.searchKeyword != 'oldest' and search.searchKeyword != 'highest' and search.searchKeyword != 'lowest'">
+            ORDER BY m.my_plant_no DESC
+        </if>
+	</select>
+	
+		<!-- UPDATE MYPLANT NAME -->
+	<select id="myPlantListbyLevlNo" parameterType="map" resultMap="myPlantSelectMap">
 		SELECT 
-			m.*,le.plant_levl_no
+			m.*,le.plant_levl_no,le.plant_max_exp
     	FROM 
     		my_plant m , plant_levl le
   	 	WHERE m.plant_no = le.plant_no
-  	 	<if test='search.searchKeyword == "current"'>
-  	 		AND m.my_plant_state = 'Y'
-  	 	</if>
-  	 	<if test='search.searchKeyword == "past"'>
   	 		AND m.my_plant_state = 'N'
-  	 	</if>
-  	 	AND m.nickname = #{user.nickname}  		
+  	 	AND m.nickname = #{nickname}
+  	 	AND m.my_plant_exp > le.plant_min_exp 		
 		ORDER BY m.my_plant_no DESC
 	</select>
 		
@@ -70,12 +113,13 @@
 	 </update>
 	 
 	 <!-- DELETE MYPLANT -->
-	 <update id="deleteMyPlant" parameterType="int">
+	 <update id="deleteMyPlant" parameterType="String">
 	 	UPDATE my_plant
 	 	<set>	
-	 		my_plant_state = 'N'
+	 		my_plant_state = 'N',
+	 		plant_end_date = NOW()
 	 	</set>
-	 	WHERE my_plant_no = #{myPlantNo}
+	 	WHERE nickname = #{nickname}
 	 </update>
 	
 	 <update id="donateMyPlant" parameterType="int">

@@ -25,6 +25,8 @@ public interface ActiveDao {
 	
 	public List<Active> getGroupActiveList(Map<String, Object> map); //���� Ȱ�� ���
 	
+	public List<Active> getGroupActiveAllList(int groupNo);
+	
 	public void addActiveHash(ActiveHash activeHash); //�ؽ� �±� ���
 	
 	public int getActiveHashCount(int activeNo); //�ؽ� �±��� ����

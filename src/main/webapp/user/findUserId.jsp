@@ -5,8 +5,31 @@
 <head>
     <meta charset="UTF-8">
     <title>사용자 아이디</title>
+    <!-- HEADER -->
+    <jsp:include page="/header.jsp"/>
+    <!-- HEADER -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+    
+    	.jumbotron {
+            position: relative;
+            background-color: white; /* 배경 색깔 흰색으로 변경 */
+            padding: 11rem 0rem 0rem 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: -31rem;
+        }
+        
+        .jumbotron img {
+            width: 100%;
+        }
+        
+        .jumbotron-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
         body {
             background-color: #f8f9fa;
         }
@@ -45,19 +68,30 @@
             font-size: 1.1rem;
             padding: 10px 20px;
         }
+        .auth-form-light h1{
+        	font-size:1.8rem;
+        	color:#07a707;
+        	font-weight:bold;
+        }
+         .auth-form-light p{
+        	font-size:1.5rem;
+        	margin-bottom : 25px;
+        }
     </style>
 </head>
 <body>
+	<div class="jumbotron">
+        <div class="container">
+            <img src="/images/wewujumbo.jpg" alt="Background Image">
+        </div>
+    </div>
 
-    <!-- HEADER -->
-    <jsp:include page="/header.jsp"/>
-    <!-- HEADER -->
     <div class="main-panel">
         <div class="content-wrapper">
 		    <div class="container-scroller">
 		        <div class="auth-form-light py-5 px-4 px-sm-5">
-		            <h1>사용자 아이디</h1>
-		            <p>아이디: ${userId}</p>
+		            <h1>아이디 찾기에 성공하셨습니다.</h1>
+		            <p>회원님의 아이디는	 &nbsp; "${userId}" 입니다.</p>
 		            <a href="/user/login" class="btn btn-primary">로그인 페이지로 이동</a>
 		        </div>
 		    </div>

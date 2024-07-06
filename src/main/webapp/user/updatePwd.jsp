@@ -4,9 +4,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>비밀번호 변경 성공</title>
+    <title>비밀번호 변경 완료</title>
+    
+    <!-- HEADER -->
+    <jsp:include page="/header.jsp"/>
+    <!-- HEADER -->
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+		.jumbotron {
+            position: relative;
+            background-color: white; /* 배경 색깔 흰색으로 변경 */
+            padding: 23rem 0rem 0rem 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: -32rem;
+        }
+        
+        .jumbotron img {
+            width: 100%;
+        }
+        
+        .jumbotron-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
         body {
             background-color: #f8f9fa;
         }
@@ -41,13 +65,20 @@
             font-size: 1.1rem;
             padding: 10px 20px;
         }
+        
+        .auth-form-light{
+        	font-weight:bold;
+        	font-size: 40px;
+        }
     </style>
 </head>
 <body>
-
-    <!-- HEADER -->
-    <jsp:include page="/header.jsp"/>
-    <!-- HEADER -->
+	<div class="jumbotron">
+       <div class="container">
+           <img src="/images/wewujumbo.jpg" alt="Background Image">
+       </div>
+    </div>
+    
     <div class="main-panel">
         <div class="content-wrapper">
 		    <div class="container-scroller">

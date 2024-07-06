@@ -48,17 +48,19 @@ public class UserServiceImpl implements UserService {
         userDao.deleteUser(userId);
     }
 
+    public Map<String, Object> getUserList(Search search, int startRowNum, int pageSize) throws Exception {
+        System.out.println(search);
+        List<User> list = userDao.getUserList(search, startRowNum, pageSize);
+        int totalCount = userDao.getTotalCount(search);
 
-    public Map<String , Object > getUserList(Search search) throws Exception {
-		List<User> list= userDao.getUserList(search);
-		int totalCount = userDao.getTotalCount(search);
-		
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("list", list );
-		map.put("totalCount", new Integer(totalCount));
-		
-		return map;
-	}
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", list);
+        map.put("totalCount", totalCount);
+
+        return map;
+    }
+
+
     
     //myInfo, getUser
     public User getUser(String userId) throws Exception{
@@ -78,25 +80,29 @@ public class UserServiceImpl implements UserService {
         System.out.println("로그인 시도 사용자 ID: " + user.getUserId());
         User dbUser = userDao.getUser(user.getUserId());
         if (dbUser != null) {
-            // Check if the user's role is 4
-        	System.out.println("DB 사용자 ID: " + dbUser.getUserId());
+            // Check if the user's role is 4 or 5
+            System.out.println("DB 사용자 ID: " + dbUser.getUserId());
             System.out.println("DB 사용자 Role: " + dbUser.getRole());
             if ("4".equals(dbUser.getRole())) {
-                throw new Exception("삭제처리 되었습니다.");
+                throw new Exception("탈퇴처리 되었습니다.");
+            }
+            if ("5".equals(dbUser.getRole())) {
+                throw new Exception("로그인이 제한된 계정입니다.");
             }
 
             // Check if the password matches
             if (user.getUserPwd() != null && user.getUserPwd().equals(dbUser.getUserPwd())) {
-            	System.out.println("비밀번호 일치");
-            	return dbUser;
-            }else {
+                System.out.println("비밀번호 일치");
+                return dbUser;
+            } else {
                 System.out.println("비밀번호 불일치");
             }
-        }else {
+        } else {
             System.out.println("사용자를 찾을 수 없음");
         }
         return null;
     }
+
 
     //사용자 아이디 중복체크
 	public boolean checkUserId(String userId) throws Exception {
@@ -172,4 +178,39 @@ public class UserServiceImpl implements UserService {
 	public void updatePwd(User user) throws Exception {
         userDao.updatePwd(user);
 	}
+	
+	//role 변경
+	public void updateRole(User user) throws Exception {
+		 userDao.updateRole(user);
+		 
+		 //콘솔창 확인용
+		  String currentRole = user.getRole();
+	        if ("2".equals(currentRole)) {
+	            System.out.println("role 2 => 5");
+	        } else if ("5".equals(currentRole)) {
+	            System.out.println("role 5 => 2");
+	        } else if ("4".equals(currentRole)) {
+	            System.out.println("role 4 => 2");
+	        }else {
+	            System.out.println("role update => no change or different role");
+	        }
+	    }
+	
+	   public void updateUserPoint(String userId, int afterPoint) throws Exception{
+		      
+		      User user = userDao.getUser(userId);
+		      if (user == null) {
+		            throw new IllegalArgumentException("User not found");
+		        }
+
+		        if (afterPoint < 0) {
+		            throw new IllegalArgumentException("Insufficient points");
+		        }
+
+		        Map<String, Object> params = new HashMap<>();
+		        params.put("userId", userId);
+		        params.put("points", afterPoint);
+		        userDao.updateUserPoint(params);
+		   }
+
 }

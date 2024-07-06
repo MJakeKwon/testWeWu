@@ -39,6 +39,20 @@
         WHERE user_id = #{userId}
     </update>
     
+	<update id="updateRole" parameterType="life.wewu.web.domain.user.User">
+	    UPDATE user
+	    SET 
+	        role = 
+	        CASE
+	            WHEN role = '2' THEN '5'
+	            WHEN role = '5' THEN '2'
+	            WHEN role = '4' THEN '2'
+	            ELSE role
+	        END
+	    WHERE user_id = #{userId}
+	</update>
+
+    
     <select id="getUser" parameterType="String" resultMap="UserResultMap">
         SELECT * 
         FROM user 
@@ -83,25 +97,25 @@
 	    WHERE user_id = #{userId} AND phone_num = #{phoneNum}
 	</update>
 	
-	<select id="getUserList" parameterType="life.wewu.web.common.Search" resultMap="UserResultMap">
-	    SELECT *
-	    FROM user
-	    <if test="searchCondition != null and searchKeyword != null and searchKeyword != ''">
-	        <where>
-	            <choose>
-	                <when test="searchCondition == '0'">
-	                    user_id LIKE CONCAT('%', #{searchKeyword}, '%')
-	                </when>
-	                <when test="searchCondition == '1'">
-	                    user_name LIKE CONCAT('%', #{searchKeyword}, '%')
-	                </when>
-	            </choose>
-	        </where>
-	    </if>
-	    ORDER BY user_id
-	    LIMIT #{startRowNum}, #{pageSize}
+	<select id="getUserList" parameterType="map" resultMap="UserResultMap">
+    SELECT *
+    FROM user
+    <where>
+        <if test="search.searchCondition != null and search.searchKeyword != ''">
+            <choose>
+                <when test="search.searchCondition == 0">
+                    user_id LIKE CONCAT('%', #{search.searchKeyword}, '%')
+                </when>
+                <when test="search.searchCondition == 1">
+                    user_name LIKE CONCAT('%', #{search.searchKeyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </where>
+    ORDER BY user_id
+    LIMIT #{pageSize} OFFSET #{startRowNum}
 	</select>
-	
+
 	 <select  id="getTotalCount"  parameterType="life.wewu.web.common.Search" resultType="int">
 	  	SELECT COUNT(*)
 	  	FROM(	SELECT user_id , user_name , email
@@ -117,5 +131,12 @@
 							</where>
 						</if> ) countTable						
 	 </select>
+    
+	<update  id = "updateUserPoint" parameterType="map">
+       UPDATE user
+       SET
+          current_Point = #{points}
+          where user_id = #{userId}
+    </update>
     
 </mapper>

@@ -37,4 +37,6 @@ public interface GroupMemberDao {
 	
 	public String getScrab(int memberNo) throws Exception;
 	
+	public int groupMemberCnt(int groupNo) throws Exception;
+	
 }

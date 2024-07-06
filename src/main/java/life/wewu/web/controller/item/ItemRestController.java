@@ -61,7 +61,7 @@ public class ItemRestController {
 		System.out.println(":: /app/item/deleteItem ::");
 		// Business logic 수행
 		String flag = "";
-		int itemNo = (int)rslt.get("itemNo");
+		int itemNo = Integer.parseInt(rslt.get("itemNo").toString());
 		
 		try
   		{

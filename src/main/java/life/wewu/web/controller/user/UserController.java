@@ -32,6 +32,16 @@ public class UserController {
     @Autowired
     private UserService userService;
     
+    
+	@RequestMapping( value="map", method=RequestMethod.GET )
+	public String goMap( ) throws Exception {
+
+		System.out.println("/user/goMap : POST");
+		//Business Logic
+		
+		return "redirect:/user/map.jsp";
+	}
+    
     @RequestMapping(value="/login", method=RequestMethod.GET)
     public String showLoginPage(HttpSession session) {
         // 세션에서 유저 정보를 가져옴
@@ -47,35 +57,6 @@ public class UserController {
         return "/user/loginView"; // login.jsp 페이지를 반환
     }
 
-    @RequestMapping(value="/login", method=RequestMethod.POST)
-    public String login(@ModelAttribute("user") User user, HttpSession session) {
-        System.out.println("/user/login : POST");
-
-        try {
-            // 로그인 서비스 호출
-            User dbUser = userService.login(user);
-
-            if (dbUser != null) {
-                session.setAttribute("user", dbUser);
-                session.setAttribute("isAdmin", "1".equals(dbUser.getRole()));
-                System.out.println("로그인 성공: " + dbUser.getUserId());
-                return "redirect:/index.jsp";
-            } else {
-                System.out.println("로그인 실패: 비밀번호 불일치 또는 사용자 없음");
-                return "redirect:/user/loginView.jsp?error=login_failed";
-            }
-        } catch (IllegalArgumentException e) {
-            // 유효하지 않은 사용자 정보 예외 처리
-            System.out.println("유효하지 않은 사용자 정보: " + e.getMessage());
-            return "redirect:/user/loginView.jsp?error=invalid_user";
-        } catch (Exception e) {
-            // 일반 예외 처리
-            System.out.println("로그인 중 예외 발생: " + e.getMessage());
-            return "redirect:/user/loginView.jsp?error=unexpected_error";
-        }
-    }
-
-
     
 	@RequestMapping( value="/logout", method=RequestMethod.GET )
 	public String logout(HttpSession session ) throws Exception{
@@ -86,6 +67,12 @@ public class UserController {
 		
 		return "redirect:/user/loginView.jsp";
 	}
+	
+    @PostMapping("/user/findUserId")
+    public String findUserId(@RequestParam String userId, Model model) {
+        model.addAttribute("userId", userId);
+        return "user/findUserId";
+    }
 	
 	@RequestMapping(value = "/findUserId", method =RequestMethod.GET)
 	public String verification() throws Exception {
@@ -141,141 +128,134 @@ public class UserController {
 		//Business Logic
 		userService.addUser(user);
 		
-		return "redirect:/user/loginView.jsp";
+		return "redirect:/user/login";
 	}
-	
-	@RequestMapping( value="map", method=RequestMethod.GET )
-	public String goMap( ) throws Exception {
-
-		System.out.println("/user/goMap : POST");
-		//Business Logic
-		
-		return "redirect:/user/map.jsp";
-	}
+	 @PostMapping("/user/findPwd")
+	    public String findPwd(@RequestParam String userId, Model model) {
+	        model.addAttribute("userId", userId);
+	        return "user/updatePwdView";
+	    }
 	
 	//user 내정보조회페이지로 이동
-	 @GetMapping("/myInfo")
-	    public String myInfo(HttpSession session, Model model) throws Exception {
-		 
-	        System.out.println("/user/myInfo : GET");
+	@GetMapping("/myInfo")
+	public String myInfo(HttpSession session, Model model) throws Exception {
+	 
+	    System.out.println("/user/myInfo : GET");
 
-	        User sessionUser = (User) session.getAttribute("user");
-	        if (sessionUser == null) {
-	            return "redirect:/user/loginView.jsp"; // 세션에 유저 정보가 없으면 로그인 페이지로 리디렉션
-	        }
-	        
-	        String userId = sessionUser.getUserId();
-	        User user = userService.getUser(userId);
-	        model.addAttribute("user", user);
-
-	        return "forward:/user/myInfo.jsp"; // 뷰 이름 반환
+	    User sessionUser = (User) session.getAttribute("user");
+	    if (sessionUser == null) {
+	        return "redirect:/user/loginView.jsp"; // 세션에 유저 정보가 없으면 로그인 페이지로 리디렉션
 	    }
+	    
+	    String userId = sessionUser.getUserId();
+	    User user = userService.getUser(userId);
+	    model.addAttribute("viewedUser", user); // 'viewedUser' 속성으로 변경
+
+	    return "forward:/user/myInfo.jsp"; // 뷰 이름 반환
+	}
+
 	 
 	 //listUser (admin)에서 유저상세정보 보기
-		@RequestMapping( value="/getUser", method=RequestMethod.GET )
-		public String getUser( @RequestParam("userId") String userId , Model model ) throws Exception {
-			
-			System.out.println("/user/myInfo : GET");
-			//Business Logic
-			User user = userService.getUser(userId);
-			// Model 과 View 연결
-			model.addAttribute("user", user);
-			
-			return "forward:/user/myInfo.jsp";
-		}
-	//내정보 조회페이지에서 비번입력하면 내정보수정페이지로 이동
-//		@PostMapping("/checkPassword")
-//		public String checkPassword(@RequestParam("userId") String userId, 
-//		                            @RequestParam("password") String password, 
-//		                            Model model) throws Exception {
-//
-//		    System.out.println("/user/checkPassword : POST");
-//
-//		    User user = userService.getUser(userId);
-//		    if (user != null && user.getUserPwd().equals(password)) {
-//		        model.addAttribute("user", user);
-//		        return "forward:/user/myInfoView.jsp?userId=" + userId;
-//		    } else {
-//		        model.addAttribute("error", "유효하지 않은 비밀번호 입니다. 다시 입력하세요.");
-//		        return "forward:/user/myInfo.jsp";
-//		    }
-//		}
-		@PostMapping("/checkPassword")
-		public String checkPassword(@RequestParam("userId") String userId, 
-		                            @RequestParam(value = "password", required = false) String password, 
-		                            HttpSession session,
-		                            Model model) throws Exception {
+	 @RequestMapping(value = "/getUser", method = RequestMethod.GET)
+	 public String getUser(@RequestParam("userId") String userId, Model model) throws Exception {
+	     
+	     System.out.println("/user/myInfo : GET");
+	     // Business Logic
+	     User user = userService.getUser(userId);
+	     // Model 과 View 연결
+	     model.addAttribute("viewedUser", user);  // 수정된 변수명
+	     
+	     return "forward:/user/myInfo.jsp";
+	 }
 
-		    System.out.println("/user/checkPassword : POST");
+	 @PostMapping("/checkPassword")
+	 public String checkPassword(@RequestParam("userId") String userId, 
+	                             @RequestParam(value = "password", required = false) String password, 
+	                             HttpSession session,
+	                             Model model) throws Exception {
 
-		    User user = userService.getUser(userId);
-		    User loggedInUser = (User) session.getAttribute("user");
+	     System.out.println("/user/checkPassword : POST");
 
-		    if (user != null && loggedInUser != null) {
-		        boolean isAdmin = Boolean.TRUE.equals(session.getAttribute("isAdmin"));
+	     User user = userService.getUser(userId);
+	     User loggedInUser = (User) session.getAttribute("user");
 
-		        if (isAdmin || (password != null && user.getUserPwd().equals(password))) {
-		            model.addAttribute("user", user);
-		            return "forward:/user/myInfoView.jsp?userId=" + userId;
-		        } else {
-		            model.addAttribute("error", "유효하지 않은 비밀번호 입니다. 다시 입력하세요.");
-		            return "forward:/user/myInfo.jsp";
-		        }
-		    } else {
-		        model.addAttribute("error", "사용자를 찾을 수 없습니다.");
-		        return "forward:/user/myInfo.jsp";
-		    }
-		}
+	     if (user != null && loggedInUser != null) {
+	         boolean isAdmin = Boolean.TRUE.equals(session.getAttribute("isAdmin"));
+
+	         if (isAdmin || (password != null && user.getUserPwd().equals(password))) {
+	             model.addAttribute("viewedUser", user);
+	             return "forward:/user/myInfoView.jsp";
+	         } else {
+	             model.addAttribute("error", "유효하지 않은 비밀번호 입니다. 다시 입력하세요.");
+	             return "forward:/user/myInfo.jsp";
+	         }
+	     } else {
+	         model.addAttribute("error", "사용자를 찾을 수 없습니다.");
+	         return "forward:/user/myInfo.jsp";
+	     }
+	 }
 
 
-
-	
 	//myInfoView submit => myInfo
-	@RequestMapping(value = "update", method = RequestMethod.POST)
-	public String updateUser(@ModelAttribute("user") User user, Model model, HttpSession session) throws Exception {
-		
-	    System.out.println("/user/updateUser : POST");
-	    
-	    // Business Logic: 유저 정보 수정
-	    userService.updateUser(user);
+	 @RequestMapping(value = "update", method = RequestMethod.POST)
+	 public String updateUser(@ModelAttribute("user") User user, Model model, HttpSession session) throws Exception {
+	     
+	     System.out.println("/user/updateUser : POST");
+	     
+	     // Business Logic: 유저 정보 수정
+	     userService.updateUser(user);
 
-	    // 수정된 유저 정보 조회
-	    User updatedUser = userService.getUser(user.getUserId());
+	     // 수정된 유저 정보 조회
+	     User updatedUser = userService.getUser(user.getUserId());
 
-	    // 수정된 유저 정보를 모델에 담아 전달
-	    model.addAttribute("user", updatedUser);
+	     // 수정된 유저 정보를 모델에 담아 전달
+	     model.addAttribute("viewedUser", updatedUser);
 
-	    return "/user/myInfo";  // 수정된 유저 정보를 보여주는 JSP 페이지로 리다이렉트
-	}
+	     return "forward:/user/myInfo.jsp";  // 수정된 유저 정보를 보여주는 JSP 페이지로 리다이렉트
+	 }
+
 
 	
+	@RequestMapping(value="listUser")
+	public String listUser(@ModelAttribute("search") Search search, Model model, HttpServletRequest request) throws Exception {
+	    System.out.println("/user/listUser : GET / POST");
 
+	    int pageSize = 8;
+	    int pageUnit = 5;
+	    if (search.getCurrentPage() == 0) {
+	        search.setCurrentPage(1);
+	    }
+	    search.setPageSize(pageSize);
 
-	@RequestMapping( value="listUser" )
-	public String listUser( @ModelAttribute("search") Search search , Model model , HttpServletRequest request) throws Exception{
-		
-		System.out.println("/user/listUser : GET / POST");
-		int pageSize =3;
-		int pageUnit=5;
-		if(search.getCurrentPage() ==0 ){
-			search.setCurrentPage(1);
-		}
-		search.setPageSize(pageSize);
-		
-		// Business logic 수행
-		Map<String , Object> map=userService.getUserList(search);
-		
-		Page resultPage = new Page( search.getCurrentPage(), ((Integer)map.get("totalCount")).intValue(), pageUnit, pageSize);
-		System.out.println(resultPage);
-		
-		// Model 과 View 연결
-		model.addAttribute("list", map.get("list"));
-		model.addAttribute("resultPage", resultPage);
-		model.addAttribute("search", search);
-		
-		return "forward:/user/listUser.jsp";
+	    // Start Row Num 계산
+	    int startRowNum = (search.getCurrentPage() - 1) * pageSize;
+
+	    // 검색 조건과 키워드 로깅
+	    System.out.println("Search Condition: " + search.getSearchCondition());
+	    System.out.println("Search Keyword: " + search.getSearchKeyword());
+	    System.out.println("Start Row Num: " + startRowNum);
+
+	    // Business logic 수행
+	    Map<String, Object> map = userService.getUserList(search, startRowNum, pageSize);
+
+	    // 결과 로깅
+	    System.out.println("Total Count: " + map.get("totalCount"));
+	    System.out.println("User List: " + map.get("list"));
+
+	    Page resultPage = new Page(search.getCurrentPage(), ((Integer) map.get("totalCount")).intValue(), pageUnit, pageSize);
+	    System.out.println(resultPage);
+
+	    // Model 과 View 연결
+	    model.addAttribute("list", map.get("list"));
+	    model.addAttribute("resultPage", resultPage);
+	    model.addAttribute("search", search);
+
+	    return "forward:/user/listUser.jsp";
 	}
-	
+
+
+
+
 	
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("userId") String userId) throws Exception {
@@ -286,4 +266,22 @@ public class UserController {
         
         return "redirect:/user/listUser";
     }
+    
+	@RequestMapping(value = "updateRole", method = RequestMethod.POST)
+	public String updateRole(@ModelAttribute("user") User user, Model model) throws Exception {
+		
+	    System.out.println("/user/updateRole : POST");
+	    
+	    // Business Logic: 유저 정보 수정
+	    userService.updateRole(user);
+
+	    // 수정된 유저 정보 조회
+	    User updateRole = userService.getUser(user.getUserId());
+
+	    // 수정된 유저 정보를 모델에 담아 전달
+	    model.addAttribute("user", updateRole);
+
+	    return "redirect:/user/listUser";  // 수정된 유저 정보를 보여주는 JSP 페이지로 리다이렉트
+	}
+
 }

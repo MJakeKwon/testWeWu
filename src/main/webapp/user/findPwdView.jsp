@@ -6,8 +6,32 @@
 <head>
     <meta charset="UTF-8">
     <title>비밀번호 찾기</title>
+    
+    <!-- HEADER -->
+    <jsp:include page="/header.jsp"/>
+    <!-- HEADER -->
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+        .jumbotron {
+            position: relative;
+            background-color: white; /* 배경 색깔 흰색으로 변경 */
+            padding: 16rem 0rem 0rem 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: -23rem;
+        }
+        
+        .jumbotron img {
+            width: 100%;
+        }
+        
+        .jumbotron-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
         body {
             background-color: #f8f9fa;
         }
@@ -70,62 +94,65 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-
-    <!-- HEADER -->
-    <jsp:include page="/header.jsp"/>
-    <!-- HEADER -->
+    
+    <div class="jumbotron">
+        <div class="container">
+            <img src="/images/wewujumbo.jpg" alt="Background Image">
+        </div>
+    </div>
+    
     <div class="main-panel">
         <div class="content-wrapper">
-		    <div class="container-scroller">
-		        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-		            <div class="form-section">
-		                <h1>비밀번호 찾기</h1>
-		                <form id="userInfoForm">
-		                    <div class="form-group">
-		                        <label for="userId">사용자 아이디:</label>
-		                        <input type="text" class="form-control form-control-lg" id="userId" name="userId" required />
-		                    </div>
-		                    <div class="form-group">
-		                        <label for="phoneNum">전화번호:</label>
-		                        <div class="input-group">
-		                            <input type="text" class="form-control form-control-lg" id="phoneNum" name="phoneNum" required />
-		                            <div class="input-group-append">
-		                                <button type="button" class="btn btn-primary" id="sendVerificationCode">인증번호 전송</button>
-		                            </div>
-		                        </div>
-		                        <small id="phoneNumHelp" class="form-text text-muted"></small>
-		                    </div>
-		                </form>
-		            </div>
-		
-		            <div class="form-section">
-		                <h1>인증번호 입력</h1>
-		                <form id="verificationForm" action="/user/verify-code-userPwd" method="post">
-		                    <input type="hidden" id="verificationPhoneNum" name="phoneNum" value="${user.phoneNum}" />
-		                    <input type="hidden" id="verificationUserId" name="userId" value="${user.userId}" />
-		                    <div class="form-group">
-		                        <label for="code">인증번호:</label>
-		                        <div class="input-group">
-		                            <input type="text" class="form-control form-control-lg" id="code" name="code" required />
-		                            <div class="input-group-append hidden" id="resendContainer">
-		                                <button type="button" class="btn btn-warning" id="resendVerificationCode">인증번호 재발송</button>
-		                            </div>
-		                        </div>
-		                    </div>
-		                    <div class="form-group text-center">
-		                        <button type="submit" class="btn btn-success btn-block">확인</button>
-		                    </div>
-		                </form>
-		            </div>
-		
-		            <div id="errorMessage" class="text-danger text-center">
-		                <c:if test="${not empty error}">
-		                    ${error}
-		                </c:if>
-		            </div>
-		        </div>
-		    </div>
-	    </div>
+            <div class="container-scroller">
+                <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                    <div class="form-section">
+                        <h1>비밀번호 찾기</h1>
+                        <form id="userInfoForm">
+                            <div class="form-group">
+                                <label for="userId">사용자 아이디:</label>
+                                <input type="text" class="form-control form-control-lg" id="userId" name="userId" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="phoneNum">전화번호:</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-lg" id="phoneNum" name="phoneNum" required />
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-primary" id="sendVerificationCode">인증번호 전송</button>
+                                    </div>
+                                </div>
+                                <small id="phoneNumHelp" class="form-text text-muted"></small>
+                            </div>
+                        </form>
+                    </div>
+        
+                    <div class="form-section">
+                        <h1>인증번호 입력</h1>
+                        <form id="verificationForm">
+                            <input type="hidden" id="verificationPhoneNum" name="phoneNum" />
+                            <input type="hidden" id="verificationUserId" name="userId" />
+                            <div class="form-group">
+                                <label for="code">인증번호:</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-lg" id="code" name="code" required />
+                                    <div class="input-group-append hidden" id="resendContainer">
+                                        <button type="button" class="btn btn-warning" id="resendVerificationCode">인증번호 재발송</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group text-center">
+                                <button type="button" class="btn btn-success btn-block" id="verifyButton">확인</button>
+                            </div>
+                        </form>
+                    </div>
+        
+                    <div id="errorMessage" class="text-danger text-center">
+                        <c:if test="${not empty error}">
+                            ${error}
+                        </c:if>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- FOOTER -->
@@ -135,6 +162,14 @@
     <script>
         $(document).ready(function() {
             $("#resendContainer").hide();  // 페이지 로드 시 숨김
+
+            // 입력 필드가 변경될 때마다 숨겨진 필드를 초기화하고 인증 버튼을 다시 활성화
+            $("#userId, #phoneNum").on("input", function() {
+                $("#sendVerificationCode").prop("disabled", false);
+                $("#verificationPhoneNum").val("");
+                $("#verificationUserId").val("");
+                $("#code").val("");
+            });
 
             $("#phoneNum").on("input", function() {
                 var phoneNum = $(this).val();
@@ -158,8 +193,6 @@
                             $("#errorMessage").text("인증번호가 전송되었습니다.").removeClass("text-danger").addClass("text-success");
                             $("#verificationPhoneNum").val(phoneNum);
                             $("#verificationUserId").val(userId);
-                            $("#resendPhoneNum").val(phoneNum);
-                            $("#resendUserId").val(userId);
                             $("#sendVerificationCode").prop("disabled", true);
                             $("#resendContainer").show();  // 인증번호 전송 후 나타남
                         },
@@ -191,6 +224,34 @@
                 } else {
                     $("#errorMessage").text("유효한 전화번호를 입력하세요.").removeClass("text-success").addClass("text-danger");
                 }
+            });
+
+            $("#verifyButton").click(function() {
+                var phoneNum = $("#verificationPhoneNum").val();
+                var userId = $("#verificationUserId").val();
+                var code = $("#code").val();
+                $.ajax({
+                    url: "/user/verify-code-userPwd",
+                    type: "POST",
+                    data: { phoneNum: phoneNum, code: code, userId: userId },
+                    success: function(response) {
+                        if (response.isVerified) {
+                            if (response.userId) {
+                                var form = $('<form action="/user/findPwd" method="post">' +
+                                  '<input type="hidden" name="userId" value="' + response.userId + '"></input>' + '</form>');
+                                $('body').append(form);
+                                form.submit();
+                            } else {
+                                $("#errorMessage").text("사용자를 찾을 수 없습니다. 입력을 확인하세요.").removeClass("text-success").addClass("text-danger");
+                            }
+                        } else {
+                            $("#errorMessage").text("인증 실패").removeClass("text-success").addClass("text-danger");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $("#errorMessage").text("서버 오류가 발생했습니다. 다시 시도해주세요.").removeClass("text-success").addClass("text-danger");
+                    }
+                });
             });
         });
         $('footer').removeClass('fixed-bottom');

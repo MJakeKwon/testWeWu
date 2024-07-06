@@ -42,6 +42,8 @@
 		<typeAlias alias="shoppingCart" type="life.wewu.web.domain.item.ShoppingCart" />
 		
 		<typeAlias alias="pay" type="life.wewu.web.domain.pay.Pay" />
+		
+		<typeAlias alias="report" type="life.wewu.web.domain.report.Report" />
 	</typeAliases>
 	
 	<!-- 
@@ -78,5 +80,7 @@
         <mapper resource="static/mybatis/PayMapper.xml"/>
         
         <mapper resource="static/mybatis/InventoryMapper.xml"/>
+        
+        <mapper resource="static/mybatis/reportMapper.xml"/>
 	</mappers>
 </configuration>

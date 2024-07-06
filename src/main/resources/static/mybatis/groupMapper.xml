@@ -61,7 +61,7 @@
   			"D",
   			#{groupFile},
   			null,
-  			#{groupRslt},
+  			"E",
   			null,
   			NOW(), 
   			null,
@@ -124,6 +124,9 @@
 		        group_addr = #{groupAddr},
 		    </if>
 		    <if test="groupPlan != null and groupPlan != ''">
+		        open_date = NOW(),
+		    </if>
+		    <if test="groupPlan != null and groupPlan != ''">
 		        group_plan = #{groupPlan},
 		    </if>
 		    <if test="groupPers != null and groupPers != ''">
@@ -134,9 +137,6 @@
 		    </if>
 		    <if test="groupFile != null and groupFile != ''">
 		        group_file = #{groupFile},
-		    </if>
-		    <if test="openDate != null and openDate != ''">
-		        open_date = #{openDate},
 		    </if>
 		    <if test="rsltDate != null and rsltDate != ''">
 		        rslt_date = #{rsltDate},
@@ -159,6 +159,7 @@
 		    <if test="groupRslt != null and groupRslt != ''">
 		        group_rslt = #{groupRslt},
 		    </if>
+		    
 		    group_no =  #{groupNo}
 		</set>
 		<where>
@@ -177,7 +178,7 @@
 			<where>
 				group_rslt = 'T'
 			</where>
-			ORDER BY group_level ASC, group_pers DESC;
+			ORDER BY group_level ASC, group_pers DESC
 		</if>
 		<if test='searchCondition == "My"'>
 			<where>
@@ -201,9 +202,64 @@
 		</if>
 		<if test='searchCondition == "search"'>
 			<where>
-				group_name = #{searchKeyword}
+				group_name LIKE CONCAT('%', #{searchKeyword}, '%')
+				AND 
+				group_rslt = 'T'
+			</where>
+		</if>
+		<if test='pageSize == 0'>
+			LIMIT #{currentPage}, 10
+		</if>
+		
+  	</select>
+  	
+  	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  	
+  	<select id="getGroupListCnt" 
+  			  parameterType="search" 
+  			  resultType="INT">
+		SELECT 
+			COUNT(*)
+		FROM group_info
+		<if test='searchCondition == "Ranking"'>
+			<where>
+				group_rslt = 'T'
+			</where>
+			ORDER BY group_level ASC, group_pers DESC
+		</if>
+		<if test='searchCondition == "My"'>
+			<where>
+				leader_nick = #{searchKeyword}
+			</where>
+		</if>
+		<if test='searchCondition == "E"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "T"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "F"'>
+			<where>
+				group_rslt = #{searchCondition}
+			</where>
+		</if>
+		<if test='searchCondition == "search"'>
+			<where>
+				group_name LIKE CONCAT('%', #{searchKeyword}, '%')
+				AND 
+				group_rslt = 'T'
 			</where>
 		</if>
   	</select>
+  	
+  	<update id="updateRole" parameterType="String" >
+  		UPDATE user SET role='3'
+  		<where>
+  			nickname = #{nickname}
+  		</where>
+  	</update>
   	<!-- SELECT 매핑구문 (select SQL 등록) :: select element -->  
 </mapper>
